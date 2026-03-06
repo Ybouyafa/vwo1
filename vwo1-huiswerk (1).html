@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="VWO 1">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="VWO 1 Huiswerkapp – alle vakken, uitleg en oefeningen">
+
+  <!-- PWA manifest inline -->
+  <link rel="manifest" href="data:application/json,{%22name%22:%22VWO%201%20Huiswerkapp%22,%22short_name%22:%22VWO%201%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%23ffffff%22,%22theme_color%22:%22%232563EB%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%20100%20100%27%3E%3Crect%20width=%27100%27%20height=%27100%27%20rx=%2720%27%20fill=%27%232563EB%27/%3E%3Ctext%20y=%27.9em%27%20font-size=%2780%27%20x=%2750%25%27%20text-anchor=%27middle%27%3E%F0%9F%8E%93%3C/text%3E%3C/svg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22}]}">
+
+  <!-- Apple touch icon -->
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232563EB'/><text y='.9em' font-size='80' x='50%25' text-anchor='middle'>🎓</text></svg>">
+
+  <title>VWO 1 Huiswerkapp</title>
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+    }
+    html {
+      height: -webkit-fill-available;
+      overscroll-behavior: none;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: #F0F4FF;
+      color: #111827;
+      overscroll-behavior: none;
+    }
+    button {
+      -webkit-appearance: none;
+      appearance: none;
+      border: none;
+      background: none;
+      font-family: inherit;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    input {
+      -webkit-appearance: none;
+      appearance: none;
+      font-family: inherit;
+    }
+    :root {
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+      --topbar: 54px;
+      --bottombar: 64px;
+    }
+
+    /* Topbar */
+    #topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 500;
+      padding-top: var(--safe-top);
+      background: rgba(255,255,255,0.94);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+    #topbar-inner {
+      height: var(--topbar);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 10px;
+    }
+
+    /* Bottombar */
+    #bottombar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 500;
+      padding-bottom: var(--safe-bottom);
+      background: rgba(255,255,255,0.96);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(0,0,0,0.08);
+      display: flex;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px 0 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      background: transparent;
+      position: relative;
+    }
+    .tab-btn .tab-icon { font-size: 22px; line-height: 1; }
+    .tab-btn .tab-label {
+      font-size: 10px;
+      font-weight: 500;
+      color: #9CA3AF;
+    }
+    .tab-btn.active .tab-label { color: #2563EB; font-weight: 700; }
+    .tab-dot {
+      display: none;
+      position: absolute;
+      bottom: 4px;
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: #2563EB;
+    }
+    .tab-btn.active .tab-dot { display: block; }
+
+    /* Main scroll area */
+    #main {
+      padding-top: calc(var(--safe-top) + var(--topbar));
+      padding-bottom: calc(var(--safe-bottom) + var(--bottombar));
+      min-height: 100vh;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Screen containers */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* Cards */
+    .card {
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    /* Vak grid */
+    #vak-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 16px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .vak-card {
+      background: white;
+      border-radius: 18px;
+      padding: 16px 14px;
+      text-align: left;
+      border: 1px solid #E5E7EB;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      min-height: 130px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 100%;
+    }
+    .vak-card:active { opacity: 0.75; transform: scale(0.97); }
+
+    /* Uitleg kaart */
+    .uitleg-kaart {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      padding: 20px 16px;
+      margin-bottom: 14px;
+    }
+    .stap-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+      background: #F9FAFB;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .stap-num {
+      min-width: 22px; height: 22px;
+      border-radius: 6px;
+      color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    /* Oefening kaart */
+    .oe-kaart {
+      background: white;
+      border-radius: 16px;
+      border: 1px solid #E5E7EB;
+      border-left-width: 5px;
+      padding: 18px 16px;
+      margin-bottom: 12px;
+    }
+    .oe-btn {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .oe-btn:active { opacity: 0.8; transform: scale(0.98); }
+    .oe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    /* Badge */
+    .badge {
+      display: inline-block;
+      font-size: 11px; font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+    .badge-easy { background: #DCFCE7; color: #166534; }
+    .badge-med  { background: #FEF9C3; color: #854D0E; }
+    .badge-hard { background: #FEE2E2; color: #991B1B; }
+
+    /* Progress bar */
+    .prog-track {
+      height: 5px; background: #F3F4F6;
+      border-radius: 4px; overflow: hidden;
+      margin-top: 8px;
+    }
+    .prog-fill { height: 100%; border-radius: 4px; }
+
+    /* Score pill */
+    .score-pill {
+      display: inline-block;
+      font-size: 11px; font-weight: 700;
+      padding: 2px 8px; border-radius: 20px;
+      margin-bottom: 6px;
+    }
+
+    /* Tabs */
+    .tab-switcher {
+      display: flex; gap: 4px;
+      background: #F3F4F6; border-radius: 14px; padding: 4px;
+      margin-bottom: 16px;
+    }
+    .tab-switch-btn {
+      flex: 1; padding: 12px 0; border-radius: 11px;
+      font-weight: 700; font-size: 15px;
+      background: transparent; color: #9CA3AF;
+      transition: all 0.15s;
+    }
+    .tab-switch-btn.active {
+      background: white;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Rapport */
+    .rapport-stat {
+      flex: 1;
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px; padding: 10px 8px;
+      text-align: center;
+    }
+
+    /* Naam invoer overlay */
+    #naam-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 900;
+      background: rgba(0,0,0,0.4);
+      -webkit-backdrop-filter: blur(4px);
+      backdrop-filter: blur(4px);
+      align-items: flex-end;
+      padding-bottom: var(--safe-bottom);
+    }
+    #naam-overlay.open { display: flex; }
+    #naam-sheet {
+      width: 100%;
+      background: white;
+      border-radius: 20px 20px 0 0;
+      padding: 28px 20px 20px;
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.25s ease both; }
+
+    /* Monospace blokken */
+    .mono-block {
+      font-family: "SF Mono", Menlo, "Courier New", monospace;
+      font-size: 13px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border-radius: 10px;
+      padding: 11px 13px;
+      margin-bottom: 10px;
+      line-height: 1.65;
+    }
+  </style>
+</head>
+<body>
+
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div id="topbar-inner">
+    <button id="back-btn" onclick="goBack()" style="display:none;width:38px;height:38px;border-radius:10px;background:#F3F4F6;color:#374151;font-size:20px;font-weight:700;line-height:38px;text-align:center;flex-shrink:0;">‹</button>
+    <span id="topbar-logo" style="font-size:22px;">🎓</span>
+    <div id="topbar-title" style="flex:1;font-weight:800;font-size:16px;color:#111827;line-height:1;">VWO 1 — Huiswerkapp</div>
+    <button onclick="openNaamOverlay()" id="naam-btn" style="background:#F3F4F6;border-radius:20px;padding:7px 12px;font-size:13px;color:#374151;font-weight:600;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">👤 Leerling</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- HOME SCREEN -->
+  <div id="screen-home" class="screen active">
+    <div style="padding:16px 16px 0;max-width:600px;margin:0 auto;">
+      <div class="card" style="padding:18px;display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+        <div style="width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,#3B82F6,#8B5CF6);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;">📚</div>
+        <div>
+          <div style="font-weight:800;font-size:17px;color:#111827;">Hallo, <span id="welkom-naam">Leerling</span>!</div>
+          <div id="welkom-sub" style="font-size:13px;color:#6B7280;margin-top:2px;">Kies een vak om te beginnen</div>
+        </div>
+      </div>
+    </div>
+    <div id="vak-grid">
+<button class="vak-card" id="vakbtn-wiskunde" onclick="openVak('wiskunde')" style="border-top:3px solid #3B82F6;">
+  <div style="width:40px;height:40px;border-radius:10px;background:#3B82F620;font-size:20px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">📐</div>
+  <div style="font-weight:800;font-size:15px;color:#111827;margin-bottom:2px;">Wiskunde</div>
+  <div style="font-size:11px;color:#9CA3AF;margin-bottom:8px;" id="meta-wiskunde">6 uitleg · 15 opgaven</div>
+  <div style="height:5px;background:#F3F4F6;border-radius:4px;overflow:hidden;"><div id="prog-wiskunde" style="height:100%;width:0%;background:#3B82F6;border-radius:4px;"></div></div>
+  <div style="font-size:10px;color:#9CA3AF;margin-top:3px;" id="pct-wiskunde">0% voltooid</div>
+</button>
+<button class="vak-card" id="vakbtn-nederlands" onclick="openVak('nederlands')" style="border-top:3px solid #10B981;">
+  <div style="width:40px;height:40px;border-radius:10px;background:#10B98120;font-size:20px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">📝</div>
+  <div style="font-weight:800;font-size:15px;color:#111827;margin-bottom:2px;">Nederlands</div>
+  <div style="font-size:11px;color:#9CA3AF;margin-bottom:8px;" id="meta-nederlands">6 uitleg · 12 opgaven</div>
+  <div style="height:5px;background:#F3F4F6;border-radius:4px;overflow:hidden;"><div id="prog-nederlands" style="height:100%;width:0%;background:#10B981;border-radius:4px;"></div></div>
+  <div style="font-size:10px;color:#9CA3AF;margin-top:3px;" id="pct-nederlands">0% voltooid</div>
+</button>
+<button class="vak-card" id="vakbtn-engels" onclick="openVak('engels')" style="border-top:3px solid #F59E0B;">
+  <div style="width:40px;height:40px;border-radius:10px;background:#F59E0B20;font-size:20px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">🌍</div>
+  <div style="font-weight:800;font-size:15px;color:#111827;margin-bottom:2px;">Engels</div>
+  <div style="font-size:11px;color:#9CA3AF;margin-bottom:8px;" id="meta-engels">6 uitleg · 12 opgaven</div>
+  <div style="height:5px;background:#F3F4F6;border-radius:4px;overflow:hidden;"><div id="prog-engels" style="height:100%;width:0%;background:#F59E0B;border-radius:4px;"></div></div>
+  <div style="font-size:10px;color:#9CA3AF;margin-top:3px;" id="pct-engels">0% voltooid</div>
+</button>
+<button class="vak-card" id="vakbtn-biologie" onclick="openVak('biologie')" style="border-top:3px solid #8B5CF6;">
+  <div style="width:40px;height:40px;border-radius:10px;background:#8B5CF620;font-size:20px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">🧬</div>
+  <div style="font-weight:800;font-size:15px;color:#111827;margin-bottom:2px;">Biologie</div>
+  <div style="font-size:11px;color:#9CA3AF;margin-bottom:8px;" id="meta-biologie">6 uitleg · 11 opgaven</div>
+  <div style="height:5px;background:#F3F4F6;border-radius:4px;overflow:hidden;"><div id="prog-biologie" style="height:100%;width:0%;background:#8B5CF6;border-radius:4px;"></div></div>
+  <div style="font-size:10px;color:#9CA3AF;margin-top:3px;" id="pct-biologie">0% voltooid</div>
+</button>
+<button class="vak-card" id="vakbtn-aardrijkskunde" onclick="openVak('aardrijkskunde')" style="border-top:3px solid #06B6D4;">
+  <div style="width:40px;height:40px;border-radius:10px;background:#06B6D420;font-size:20px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">🗺️</div>
+  <div style="font-weight:800;font-size:15px;color:#111827;margin-bottom:2px;">Aardrijkskunde</div>
+  <div style="font-size:11px;color:#9CA3AF;margin-bottom:8px;" id="meta-aardrijkskunde">6 uitleg · 10 opgaven</div>
+  <div style="height:5px;background:#F3F4F6;border-radius:4px;overflow:hidden;"><div id="prog-aardrijkskunde" style="height:100%;width:0%;background:#06B6D4;border-radius:4px;"></div></div>
+  <div style="font-size:10px;color:#9CA3AF;margin-top:3px;" id="pct-aardrijkskunde">0% voltooid</div>
+</button>
+<button class="vak-card" id="vakbtn-geschiedenis" onclick="openVak('geschiedenis')" style="border-top:3px solid #EF4444;">
+  <div style="width:40px;height:40px;border-radius:10px;background:#EF444420;font-size:20px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">🏛️</div>
+  <div style="font-weight:800;font-size:15px;color:#111827;margin-bottom:2px;">Geschiedenis</div>
+  <div style="font-size:11px;color:#9CA3AF;margin-bottom:8px;" id="meta-geschiedenis">6 uitleg · 10 opgaven</div>
+  <div style="height:5px;background:#F3F4F6;border-radius:4px;overflow:hidden;"><div id="prog-geschiedenis" style="height:100%;width:0%;background:#EF4444;border-radius:4px;"></div></div>
+  <div style="font-size:10px;color:#9CA3AF;margin-top:3px;" id="pct-geschiedenis">0% voltooid</div>
+</button>
+<button class="vak-card" id="vakbtn-frans" onclick="openVak('frans')" style="border-top:3px solid #EC4899;">
+  <div style="width:40px;height:40px;border-radius:10px;background:#EC489920;font-size:20px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">🥐</div>
+  <div style="font-weight:800;font-size:15px;color:#111827;margin-bottom:2px;">Frans</div>
+  <div style="font-size:11px;color:#9CA3AF;margin-bottom:8px;" id="meta-frans">6 uitleg · 11 opgaven</div>
+  <div style="height:5px;background:#F3F4F6;border-radius:4px;overflow:hidden;"><div id="prog-frans" style="height:100%;width:0%;background:#EC4899;border-radius:4px;"></div></div>
+  <div style="font-size:10px;color:#9CA3AF;margin-top:3px;" id="pct-frans">0% voltooid</div>
+</button>
+<button class="vak-card" id="vakbtn-natuurkunde" onclick="openVak('natuurkunde')" style="border-top:3px solid #F97316;">
+  <div style="width:40px;height:40px;border-radius:10px;background:#F9731620;font-size:20px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">⚡</div>
+  <div style="font-weight:800;font-size:15px;color:#111827;margin-bottom:2px;">Natuurkunde</div>
+  <div style="font-size:11px;color:#9CA3AF;margin-bottom:8px;" id="meta-natuurkunde">6 uitleg · 11 opgaven</div>
+  <div style="height:5px;background:#F3F4F6;border-radius:4px;overflow:hidden;"><div id="prog-natuurkunde" style="height:100%;width:0%;background:#F97316;border-radius:4px;"></div></div>
+  <div style="font-size:10px;color:#9CA3AF;margin-top:3px;" id="pct-natuurkunde">0% voltooid</div>
+</button>
+<button class="vak-card" id="vakbtn-scheikunde" onclick="openVak('scheikunde')" style="border-top:3px solid #7C3AED;">
+  <div style="width:40px;height:40px;border-radius:10px;background:#7C3AED20;font-size:20px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">⚗️</div>
+  <div style="font-weight:800;font-size:15px;color:#111827;margin-bottom:2px;">Scheikunde</div>
+  <div style="font-size:11px;color:#9CA3AF;margin-bottom:8px;" id="meta-scheikunde">6 uitleg · 11 opgaven</div>
+  <div style="height:5px;background:#F3F4F6;border-radius:4px;overflow:hidden;"><div id="prog-scheikunde" style="height:100%;width:0%;background:#7C3AED;border-radius:4px;"></div></div>
+  <div style="font-size:10px;color:#9CA3AF;margin-top:3px;" id="pct-scheikunde">0% voltooid</div>
+</button>
+    </div>
+  </div>
+
+  <!-- VAK SCREEN -->
+  <div id="screen-vak" class="screen">
+    <div style="padding:14px 16px;max-width:600px;margin:0 auto;">
+      <div class="tab-switcher">
+        <button class="tab-switch-btn active" id="tab-uitleg-btn" onclick="switchTab('uitleg')">📖 Uitleg</button>
+        <button class="tab-switch-btn" id="tab-oefen-btn" onclick="switchTab('oefeningen')">✏️ Oefeningen</button>
+      </div>
+      <div id="uitleg-content"></div>
+      <div id="oefen-content" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- RAPPORT SCREEN -->
+  <div id="screen-rapport" class="screen">
+    <div style="padding:16px;max-width:600px;margin:0 auto;" id="rapport-content"></div>
+  </div>
+
+</div>
+
+<!-- BOTTOM BAR -->
+<div id="bottombar">
+  <button class="tab-btn active" id="nav-home" onclick="navTo('home')">
+    <span class="tab-icon">🏠</span>
+    <span class="tab-label">Vakken</span>
+    <span class="tab-dot"></span>
+  </button>
+  <button class="tab-btn" id="nav-rapport" onclick="navTo('rapport')">
+    <span class="tab-icon">📋</span>
+    <span class="tab-label">Rapport</span>
+    <span class="tab-dot"></span>
+  </button>
+</div>
+
+<!-- NAAM OVERLAY -->
+<div id="naam-overlay" onclick="closeNaamOverlay(event)">
+  <div id="naam-sheet" onclick="event.stopPropagation()">
+    <div style="font-weight:800;font-size:18px;margin-bottom:16px;">Naam leerling</div>
+    <input id="naam-input" type="text" placeholder="Vul je naam in…" maxlength="30"
+      style="width:100%;border:1.5px solid #D1D5DB;border-radius:12px;padding:13px 14px;font-size:16px;outline:none;margin-bottom:12px;"
+      onkeydown="if(event.key==='Enter')saveNaam()">
+    <button onclick="saveNaam()" style="width:100%;padding:14px;background:#2563EB;color:white;border-radius:12px;font-weight:800;font-size:16px;">
+      Opslaan
+    </button>
+  </div>
+</div>
+
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// VWO 1 — VOLLEDIGE LEERSTOF ALLE VAKKEN
+// ════════════════════════════════════════════════════════════════
+const INHOUD = {
+
+  // ══════════════════════════════════════════════
+  // WISKUNDE VWO 1
+  // Hoofdstukken: Gehele getallen | Breuken | Procenten | Meetkunde | Statistiek | Verhoudingen
+  // ══════════════════════════════════════════════
+  wiskunde: { "VWO 1": {
+    uitleg: [
+      {
+        titel: "H1 · Gehele getallen",
+        intro: "Gehele getallen zijn alle positieve getallen, negatieve getallen en nul. Je tegenkomt ze bij temperaturen, schulden en hoogtes onder zeeniveau. Op de getallenlijn liggen negatieve getallen links van nul.",
+        stappen: [
+          "Optellen, zelfde teken: tel op en houd het teken. −3 + (−5) = −8.",
+          "Optellen, verschillend teken: trek het kleinste getal af van het grootste en neem het teken van het grootste. −7 + 4 = −3.",
+          "Aftrekken = optellen van het tegengestelde: 5 − (−3) = 5 + 3 = 8.",
+          "Vermenigvuldigen/delen: gelijke tekens → positief. Ongelijke tekens → negatief. −4 × −3 = +12. −4 × 3 = −12.",
+          "Volgorde van bewerkingen: haakjes eerst, dan machten, dan × en ÷ (van links naar rechts), dan + en − (van links naar rechts).",
+        ],
+        tip: "Visualiseer de getallenlijn: optellen = naar rechts stappen, aftrekken = naar links stappen.",
+        formule: "+ × + = +   |   − × − = +   |   + × − = −   |   − × + = −",
+        voorbeeld: "−4 × −3 = 12   |   −4 × 3 = −12   |   −8 + 5 = −3   |   5 − (−9) = 14",
+      },
+      {
+        titel: "H2 · Breuken en kommagetallen",
+        intro: "Een breuk stelt een deling voor: ³⁄₄ = 3 gedeeld door 4 = 0,75. Breuken gebruik je als je iets in gelijke stukken verdeelt (pizza, recepten, kansen). Bewerkingen met breuken volgen vaste regels.",
+        stappen: [
+          "Optellen/aftrekken: zorg voor een gemeenschappelijke noemer (kgv). ¹⁄₄ + ¹⁄₃ → noemer 12 → ³⁄₁₂ + ⁴⁄₁₂ = ⁷⁄₁₂.",
+          "Vermenigvuldigen: teller × teller, noemer × noemer. ²⁄₃ × ³⁄₅ = ⁶⁄₁₅. Vereenvoudig: ggd(6,15)=3 → ²⁄₅.",
+          "Delen: draai de tweede breuk om en vermenigvuldig. ²⁄₃ ÷ ⁴⁄₅ = ²⁄₃ × ⁵⁄₄ = ¹⁰⁄₁₂ = ⁵⁄₆.",
+          "Breuk naar kommagetal: deel teller door noemer. ³⁄₄ = 3 ÷ 4 = 0,75.",
+          "Gemengde getallen: 2¹⁄₃ = ⁷⁄₃. Omrekenen: (2×3+1)/3 = 7/3.",
+        ],
+        tip: "Vereenvoudig altijd je antwoord door teller en noemer te delen door de ggd. Leer ggd snel bepalen.",
+        formule: "ᵃ⁄ᵦ + ᶜ⁄ᵈ = (a·d + b·c)/(b·d)   |   ᵃ⁄ᵦ × ᶜ⁄ᵈ = (a·c)/(b·d)   |   ᵃ⁄ᵦ ÷ ᶜ⁄ᵈ = ᵃ⁄ᵦ × ᵈ⁄ᶜ",
+        voorbeeld: "¹⁄₂ + ¹⁄₃ = ³⁄₆ + ²⁄₆ = ⁵⁄₆   |   ³⁄₄ × ⁸⁄₉ = ²⁴⁄₃₆ = ²⁄₃   |   ³⁄₄ = 0,75",
+      },
+      {
+        titel: "H3 · Procenten en verhoudingen",
+        intro: "Procenten drukken een deel uit van een geheel van 100. Ze komen overal voor: btw, kortingen, rentepercentages. Verhoudingen vergelijken twee grootheden en worden in de eenvoudigste vorm geschreven.",
+        stappen: [
+          "Procent berekenen: p% van n = (p ÷ 100) × n. Bijv: 15% van 80 = 0,15 × 80 = 12.",
+          "Procentuele stijging/daling: nieuw = oud × (1 + p/100) of oud × (1 − p/100).",
+          "Percentage bepalen: deel/geheel × 100%. Bijv: 18 van 40 = 18/40 × 100% = 45%.",
+          "Verhouding vereenvoudigen: deel beide termen door ggd. 12:18 → ggd=6 → 2:3.",
+          "Schaalberekening: op kaart 1:50.000 is 1 cm = 500 m in werkelijkheid.",
+        ],
+        tip: "Onthoud: p% = p/100. 1% = 0,01. 25% = 0,25 = ¼. 50% = 0,5 = ½. 75% = 0,75 = ¾.",
+        formule: "p% van n = (p/100) × n   |   nieuw = oud × groeifactor   |   % = deel/geheel × 100",
+        voorbeeld: "Korting 20% op €60: 60 × 0,80 = €48.   |   18 van 24: 18/24 × 100% = 75%.",
+      },
+      {
+        titel: "H4 · Meetkunde: oppervlakte en omtrek",
+        intro: "Meetkunde gaat over vormen, maten en ruimtelijke relaties. Oppervlakte meet het aantal vierkante eenheden dat een figuur bedekt (m², cm²). Omtrek is de totale buitenrand (m, cm). Je gebruikt vaste formules per figuur.",
+        stappen: [
+          "Rechthoek: omtrek = 2(l + b), oppervlakte = l × b.",
+          "Vierkant: omtrek = 4 × z, oppervlakte = z².",
+          "Driehoek: omtrek = a + b + c, oppervlakte = ½ × grondlijn × hoogte.",
+          "Cirkel: omtrek = 2πr (of πd), oppervlakte = πr². Gebruik π ≈ 3,14.",
+          "Samengestelde figuur: splits op in bekende vormen. Tel oppervlakten op of trek af.",
+        ],
+        tip: "Omtrek in cm of m. Oppervlakte in cm² of m². Vergeet de eenheden nooit in je antwoord!",
+        formule: "Rechthoek: A = l×b   |   Driehoek: A = ½bh   |   Cirkel: A = πr², O = 2πr",
+        voorbeeld: "Cirkel r=5: A = π×25 ≈ 78,5 cm².   Driehoek basis=6, hoogte=4: A = ½×6×4 = 12 cm².",
+      },
+      {
+        titel: "H5 · Statistiek: gemiddelde, mediaan, modus",
+        intro: "Statistiek helpt om grote hoeveelheden getallen samen te vatten en te begrijpen. De drie centrale maten (gemiddelde, mediaan, modus) beschrijven het 'midden' van een dataset elk op een andere manier.",
+        stappen: [
+          "Gemiddelde (rekenkundig): som van alle waarden ÷ aantal waarden.",
+          "Mediaan: sorteer de dataset van klein naar groot. Neem de middelste waarde. Bij een even aantal: gemiddelde van de twee middelste.",
+          "Modus: de waarde die het vaakst voorkomt. Een dataset kan geen, één of meerdere modi hebben.",
+          "Spreidingsbreedte: grootste waarde − kleinste waarde. Geeft aan hoe verspreid de data is.",
+          "Diagrammen: staafdiagram, cirkeldiagram, lijndiagram. Elk heeft een eigen toepassing.",
+        ],
+        tip: "Gemiddelde is gevoelig voor uitschieters (extreme waarden). Mediaan is robuuster. Bij scheve verdelingen is mediaan betrouwbaarder.",
+        formule: "Gemiddelde = (x₁+x₂+...+xₙ)/n   |   Spreidingsbreedte = max − min",
+        voorbeeld: "Dataset: 3, 5, 7, 7, 10. Gem=32/5=6,4. Mediaan=7 (middelste). Modus=7 (2×). Spr.breedte=7.",
+      },
+      {
+        titel: "H6 · Ruimtemeetkunde: inhoud en oppervlakte van 3D-vormen",
+        intro: "Ruimtemeetkunde werkt met driedimensionale vormen. Inhoud (volume) meet de ruimte die een vorm inneemt (cm³, m³, L). Oppervlakte van een 3D-vorm is de totale buitenoppervlakte.",
+        stappen: [
+          "Balk: V = l × b × h. Opp = 2(lb + lh + bh).",
+          "Kubus: V = z³. Opp = 6z².",
+          "Cilinder: V = πr²h. Opp = 2πr² + 2πrh.",
+          "Piramide: V = ⅓ × grondvlak × hoogte.",
+          "Omrekenen: 1 L = 1 dm³ = 1000 cm³. 1 m³ = 1000 L.",
+        ],
+        tip: "Inhoud in cm³ of m³. 1 L = 1 dm³. Oppervlakte van balk: zes rechthoekige vlakken — altijd 3 paar.",
+        formule: "Balk: V = l×b×h   |   Cilinder: V = πr²h   |   Piramide: V = ⅓ × A × h",
+        voorbeeld: "Balk 4×3×5 cm: V=60 cm³.   Cilinder r=3, h=10: V=π×9×10≈282,6 cm³.",
+      },
+    ],
+    oefeningen: [
+      { vraag: "Bereken: −8 + 3", antwoord: "−5", uitleg: "Van −8 drie stappen naar rechts op de getallenlijn: −5.", hint: "Getallenlijn: begin bij −8, ga 3 stappen naar rechts.", moeilijkheid: 1 },
+      { vraag: "Bereken: −4 × −6", antwoord: "24", uitleg: "Negatief × negatief = positief: 4×6=24.", hint: "Twee minnen = plus bij ×.", moeilijkheid: 1 },
+      { vraag: "Bereken: 5 − (−9)", antwoord: "14", uitleg: "Min min = plus: 5 + 9 = 14.", hint: "Aftrekken van negatief = optellen.", moeilijkheid: 1 },
+      { vraag: "Bereken: −3 × 4 + 2 × (−5)", antwoord: "−22", uitleg: "× eerst: −3×4=−12, 2×(−5)=−10. Dan +: −12+(−10)=−22.", hint: "Volgorde: × eerst, dan +.", moeilijkheid: 2 },
+      { vraag: "Bereken: ¹⁄₃ + ²⁄₅", antwoord: "¹¹⁄₁₅", uitleg: "Kgv(3,5)=15. ⁵⁄₁₅ + ⁶⁄₁₅ = ¹¹⁄₁₅.", hint: "Gemeenschappelijke noemer = 15.", moeilijkheid: 2 },
+      { vraag: "Bereken: ³⁄₄ × ⁸⁄₉", antwoord: "²⁄₃", uitleg: "24/36, ggd=12 → 2/3.", hint: "Teller × teller, noemer × noemer, dan vereenvoudigen.", moeilijkheid: 2 },
+      { vraag: "Bereken: ²⁄₃ ÷ ⁴⁄₉", antwoord: "³⁄₂ = 1½", uitleg: "²⁄₃ × ⁹⁄₄ = ¹⁸⁄₁₂ = ³⁄₂.", hint: "Delen = vermenigvuldigen met het omgekeerde.", moeilijkheid: 2 },
+      { vraag: "Bereken 30% van 150.", antwoord: "45", uitleg: "0,30 × 150 = 45.", hint: "30% = 0,30.", moeilijkheid: 1 },
+      { vraag: "Een prijs van €80 stijgt met 25%. Nieuwe prijs?", antwoord: "€100", uitleg: "80 × 1,25 = 100.", hint: "Groeifactor = 1 + 0,25 = 1,25.", moeilijkheid: 2 },
+      { vraag: "Wat is 18 als percentage van 24?", antwoord: "75%", uitleg: "18/24 × 100% = 75%.", hint: "deel/geheel × 100%.", moeilijkheid: 2 },
+      { vraag: "Bereken de oppervlakte van een driehoek: basis=8 cm, hoogte=5 cm.", antwoord: "20 cm²", uitleg: "A = ½ × 8 × 5 = 20 cm².", hint: "A = ½ × basis × hoogte.", moeilijkheid: 1 },
+      { vraag: "Bereken omtrek en oppervlakte van een cirkel met r=7 cm (π≈3,14).", antwoord: "O≈43,96 cm; A≈153,86 cm²", uitleg: "O=2×3,14×7=43,96 cm. A=3,14×49=153,86 cm².", hint: "O=2πr, A=πr².", moeilijkheid: 2 },
+      { vraag: "Dataset: 4, 6, 6, 8, 11. Bereken gemiddelde, mediaan, modus.", antwoord: "Gem=7; Mediaan=6; Modus=6", uitleg: "Som=35, /5=7. Middelste (gesorteerd)=6. Modus=6 (2×).", hint: "Sorteer eerst. Middelste = mediaan.", moeilijkheid: 2 },
+      { vraag: "Bereken de inhoud van een balk: 5×4×3 cm.", antwoord: "60 cm³", uitleg: "V = 5 × 4 × 3 = 60 cm³.", hint: "V = l × b × h.", moeilijkheid: 1 },
+      { vraag: "Vereenvoudig de verhouding 36:48.", antwoord: "3:4", uitleg: "ggd(36,48)=12. 36÷12=3, 48÷12=4.", hint: "Deel door de grootste gemene deler.", moeilijkheid: 1 },
+    ],
+  }},
+
+  // ══════════════════════════════════════════════
+  // NEDERLANDS VWO 1
+  // Hoofdstukken: Zinsdelen | Woordsoorten | Werkwoordspelling | Tekstbegrip | Leestekens | Spreek- en schrijfvaardigheid
+  // ══════════════════════════════════════════════
+  nederlands: { "VWO 1": {
+    uitleg: [
+      {
+        titel: "H1 · Zinsdelen herkennen",
+        intro: "Een zin bestaat uit onderdelen (zinsdelen) met elk een eigen grammaticale functie. Het onderwerp is wie/wat de handeling uitvoert. Het gezegde vertelt wat het onderwerp doet of is. Andere zinsdelen geven meer informatie.",
+        stappen: [
+          "Stap 1: vind het werkwoord → (deel van) het gezegde.",
+          "Stap 2: 'Wie of wat + werkwoord?' → onderwerp.",
+          "Stap 3: 'Wie of wat + onderwerp + werkwoord?' → lijdend voorwerp.",
+          "Stap 4: 'Aan wie/voor wie?' → meewerkend voorwerp.",
+          "Werkwoordelijk gezegde: alleen werkwoorden (loopt, heeft gelopen). Naamwoordelijk gezegde: koppelwerkwoord + naamwoordelijk deel (is blij).",
+        ],
+        tip: "Begin altijd met het werkwoord. Daarna pas onderwerp bepalen via 'wie of wat' + werkwoord.",
+        formule: "Onderwerp + Gezegde + (Lijdend vw.) + (Meewerkend vw.) + (Bijwoordelijke bepaling)",
+        voorbeeld: "Jan [ond.] geeft [ww.] zijn zus [meww.vw.] een cadeau [lijdend vw.] voor haar verjaardag [bijw. bep.].",
+      },
+      {
+        titel: "H2 · Woordsoorten",
+        intro: "Elk woord in een zin behoort tot een woordsoort. De woordsoort bepaalt hoe een woord zich gedraagt in de zin. Er zijn negen woordsoorten in het Nederlands.",
+        stappen: [
+          "Zelfstandig naamwoord (znw.): persoon, dier, ding of begrip. Test: kun je 'de' of 'het' ervoor zetten? de hond, het huis, de liefde.",
+          "Werkwoord (ww.): actie of toestand. Te herkennen: je kunt het vervoegen (loopt, liep, gelopen).",
+          "Bijvoeglijk naamwoord (bnw.): beschrijft een znw. Test: trappen van vergelijking? groot-groter-grootst.",
+          "Bijwoord (bw.): beschrijft ww., bnw. of ander bw. snel, heel, gisteren.",
+          "Voornaamwoord (vnw.): staat voor een znw. persoonlijk (ik, jij), bezittelijk (mijn), aanwijzend (dit), betrekkelijk (die/dat).",
+          "Lidwoord, voorzetsel, voegwoord, tussenwerpsel: vier andere woordsoorten.",
+        ],
+        tip: "Persoonlijk vnw.: ik/jij/hij/zij/het/wij/jullie/zij. Bezittelijk vnw.: mijn/jouw/zijn/haar. Aanwijzend vnw.: dit/dat/deze/die.",
+        formule: "9 woordsoorten: znw. | ww. | bnw. | bw. | vnw. | lidwoord | vz. | vw. | tw.",
+        voorbeeld: "'De grote hond loopt snel.' → de=lidw., grote=bnw., hond=znw., loopt=ww., snel=bw.",
+      },
+      {
+        titel: "H3 · Werkwoordspelling (stam, tegenwoordige en verleden tijd)",
+        intro: "De spelling van werkwoorden in de tegenwoordige en verleden tijd volgt vaste regels gebaseerd op de stam. De 't kofschip'-regel (ook: fokschaap) helpt bij de verleden tijd.",
+        stappen: [
+          "Stam vinden: infinitief minus -en. lopen→loop, schrijven→schrijf (v→f), reizen→reis (z→s).",
+          "Tegenwoordige tijd: stam voor ik. Stam+t voor jij/hij/zij/het (maar: eindigt stam al op t, dan geen extra t). Bijv: werken→werkt; fietsen→fietst; werken in inversion: jij werkt→werk jij.",
+          "Verleden tijd regelmatig: stam + -te(n) of -de(n). 't Kofschip: als laatste letter stam in 't kofschip (t,k,f,s,ch,p) → +te. Anders → +de.",
+          "Voltooid deelwoord (vd): ge- + stam + t/d. Zelfde regel: fokschaap → ge+stam+t. Anders: ge+stam+d. Bijv: gewerkt, geleefd.",
+        ],
+        tip: "Onthoud: 't kofschip heeft letters T-K-F-S-CH-P. Staat de laatste letter van de stam hierin? → -te/-ten/-t. Niet erin? → -de/-den/-d.",
+        formule: "Stam + t (hij/zij/het TT)   |   Stam + te/de (verleden tijd)   |   ge + stam + t/d (vd)",
+        voorbeeld: "werken: stam=werk. werk (k in fokschaap) → werkte. leven: stam=leef. f in fokschaap → leefde? Nee, f WEL → leefde. Let op: f is in fokschaap → leefde. lachen: stam=lach, ch in fokschaap → lachte.",
+      },
+      {
+        titel: "H4 · Tekstbegrip: hoofdzaken en bijzaken",
+        intro: "Bij tekstbegrip leer je hoe je een tekst analytisch leest. Je onderscheidt hoofd- van bijzaken, bepaalt de structuur en herkent de bedoeling van de schrijver.",
+        stappen: [
+          "Globaal lezen: titel, tussenkoppen, eerste/laatste alinea. Wat is het onderwerp?",
+          "Kernzin per alinea: eerste of laatste zin van een alinea is vaak de kernzin (hoofdzaak).",
+          "Bijzaken herkennen: voorbeelden, uitwerkingen, details. Signaalwoorden: 'bijvoorbeeld', 'zo', 'zoals', 'denk aan'.",
+          "Doel van de tekst: informeren, overtuigen, amuseren, instrueren?",
+          "Signaalwoorden structuur: 'ten eerste/ten tweede' (opsomming), 'maar/echter' (contrast), 'daarom/dus' (conclusie), 'omdat' (oorzaak).",
+        ],
+        tip: "Voorbeelden zijn ALTIJD bijzaken. Signaalwoorden als 'bijvoorbeeld' en 'zoals' zijn je wegwijzers.",
+        formule: "Kernzin (hoofdzaak) → Toelichting → Voorbeeld (bijzaak)",
+        voorbeeld: "Kernzin: 'Klimaatverandering bedreigt de biodiversiteit.' Bijzaak: 'Zo verdwijnen koraalriffen door hogere watertemperaturen.'",
+      },
+      {
+        titel: "H5 · Leestekens en zinsbouw",
+        intro: "Leestekens geven aan hoe een tekst gelezen moet worden. Ze bepalen de structuur en toon van zinnen. Correcte interpunctie is essentieel voor duidelijke communicatie.",
+        stappen: [
+          "Punt (.): einde van een mededelende zin.",
+          "Vraagteken (?): einde van een vraagzin.",
+          "Uitroepteken (!): einde van een uitroep of bevel.",
+          "Komma (,): scheidt zinsdelen, bijzinnen of elementen in een opsomming.",
+          "Dubbele punt (:): kondigt een opsomming, verklaring of citaat aan.",
+          "Aanhalingstekens (\"\"): voor directe rede (letterlijk citaat).",
+        ],
+        tip: "Komma voor nevenschikkende voegwoorden (en, maar, of, want, dus, nog, zo) komt niet altijd voor want in NL. Wél komma voor bijzinnen die vóór de hoofdzin staan.",
+        formule: "Directe rede: Hij zei: \"Ik kom morgen.\"   |   Bijzin vóór: Als het regent, blijf ik binnen.",
+        voorbeeld: "Fout: 'Ik ga naar school maar hij blijft thuis.' Goed: 'Ik ga naar school, maar hij blijft thuis.' (Komma voor 'maar' in samengestelde zin.)",
+      },
+      {
+        titel: "H6 · Spreek- en schrijfvaardigheid",
+        intro: "Spreek- en schrijfvaardigheid gaan over het helder en doelgericht communiceren. Je past je taal aan aan de situatie: formeel (sollicitatiebrief) of informeel (app aan een vriend).",
+        stappen: [
+          "Formeel vs. informeel: formeel = beleefd, geen 'jij/je', langere zinnen, geen afkortingen. Informeel = persoonlijk, korter, gevarieerder.",
+          "Alinea-indeling: inleiding → kern (meerdere alinea's) → slot.",
+          "Verbindingswoorden: 'bovendien' (toevoeging), 'echter/maar' (tegenstelling), 'daarom/dus' (gevolg), 'ten slotte' (afsluiting).",
+          "Presentatie: duidelijk begin, kern en slot. Praat met je publiek, niet naar je aantekeningen.",
+        ],
+        tip: "Verbindingswoorden maken je tekst of spreekbeurt samenhangend. Leer minimaal 10 uit je hoofd.",
+        formule: "Inleiding → Kern → Slot   |   Formeel ↔ Informeel",
+        voorbeeld: "Informeel: 'Ik snap er niks van.' Formeel: 'Ik begrijp de materie nog niet volledig.'",
+      },
+    ],
+    oefeningen: [
+      { vraag: "Wat is het onderwerp in: 'De leraar geeft de leerlingen een toets.'?", antwoord: "De leraar", uitleg: "Wie geeft? De leraar → onderwerp.", hint: "Vraag: wie of wat + werkwoord?", moeilijkheid: 1 },
+      { vraag: "Wat is het lijdend voorwerp in: 'Maria koopt een rode fiets.'?", antwoord: "een rode fiets", uitleg: "Wat koopt Maria? Een rode fiets → lijdend voorwerp.", hint: "Vraag: wat wordt er gekocht?", moeilijkheid: 1 },
+      { vraag: "Wat is de woordsoort van 'snel' in: 'De auto rijdt snel'?", antwoord: "Bijwoord (beschrijft het werkwoord 'rijdt')", uitleg: "Snel beschrijft hoe gereden wordt → bijwoord.", hint: "Beschrijft het een werkwoord?", moeilijkheid: 1 },
+      { vraag: "Wat is de woordsoort van 'groot' in: 'Het grote huis staat op de hoek'?", antwoord: "Bijvoeglijk naamwoord (beschrijft 'huis')", uitleg: "Groot beschrijft het zelfstandig naamwoord huis → bnw.", hint: "Beschrijft het een zelfstandig naamwoord?", moeilijkheid: 1 },
+      { vraag: "Bepaal de stam van 'schrijven'.", antwoord: "schrijf (v→f aan het eind van de stam)", uitleg: "schrijven − en = schrijven → schrijf. v aan eind van stam wordt f.", hint: "v aan het eind van de stam wordt f.", moeilijkheid: 2 },
+      { vraag: "Spel: hij (werken) gisteren hard. (verleden tijd)", antwoord: "werkte", uitleg: "Stam = werk. k staat in 't kofschip → +te.", hint: "k staat in fokschaap/kofschip.", moeilijkheid: 1 },
+      { vraag: "Spel: zij (leven) in Amsterdam. (verleden tijd)", antwoord: "leefde", uitleg: "Stam = leef (v→f). f staat in fokschaap → +de? Wacht: f WEL in kofschip → leefde. Let op: f is IN 't kofschip → +te → leefde. Opmerking: leren→leefde is FOUT. Het correcte antwoord is 'leefde' (stam leef, f ∈ kofschip → te → leefTE). Dus: leefTE.", antwoord: "leefde", uitleg: "Stam van leven = leef. f staat in 't kofschip → verleden tijd eindigt op -te → MAAR: let op de klankwet: f wordt v in klankomgeving. De verleden tijd van 'leven' is 'leefde' NIET 'leefTE' — dit is een uitzondering die je moet onthouden.", hint: "leven → stam leef → verleden tijd is leefde (onthoud als uitzondering).", moeilijkheid: 3 },
+      { vraag: "Welk signaalwoord geeft aan dat iets een voorbeeld is?", antwoord: "Bijv: 'bijvoorbeeld', 'zo', 'zoals', 'denk aan', 'ter illustratie'", uitleg: "Voorbeelden zijn bijzaken. Ze illustreren de hoofdzaak maar zijn niet de kern.", hint: "Signaalwoorden voor voorbeelden zijn altijd bijzaken.", moeilijkheid: 1 },
+      { vraag: "Benoem alle zinsdelen in: 'Mijn vriend stuurt zijn moeder een kaart.'", antwoord: "mijn vriend=onderwerp | stuurt=werkwoord | zijn moeder=meewerkend vw. | een kaart=lijdend vw.", uitleg: "Wie stuurt? Vriend. Wat? Kaart. Aan wie? Moeder.", hint: "Zoek: werkwoord → onderwerp → lijdend vw. → meewerkend vw.", moeilijkheid: 3 },
+      { vraag: "Noem het verschil tussen werkwoordelijk en naamwoordelijk gezegde. Geef een voorbeeld van elk.", antwoord: "Ww. gezegde: alleen werkwoorden (hij rent). Naamw. gezegde: koppelwerkwoord + naamwoordelijk deel (hij is blij).", uitleg: "Bij naamwoordelijk gezegde is een koppelwerkwoord (zijn, worden, lijken, blijven...) aanwezig.", hint: "Koppelwerkwoord = zijn, worden, lijken, blijven...", moeilijkheid: 2 },
+      { vraag: "Welk leesteken gebruik je aan het einde van: 'Hoe oud ben jij'", antwoord: "Vraagteken (?)", uitleg: "Dit is een directe vraag → vraagteken.", hint: "Is het een vraag?", moeilijkheid: 1 },
+      { vraag: "Schrijf de zin formeel: 'Ik snap er niks van en ik vind het super moeilijk.'", antwoord: "Ik begrijp de leerstof nog onvoldoende en ervaar de stof als bijzonder uitdagend.", uitleg: "Formeel: vermijd informele woorden ('snap', 'niks', 'super'). Gebruik formele equivalenten.", hint: "Vervang 'snap'→begrijp, 'niks'→niet, 'super'→bijzonder.", moeilijkheid: 2 },
+    ],
+  }},
+
+  // ══════════════════════════════════════════════
+  // ENGELS VWO 1
+  // Hoofdstukken: Present Simple | Present Continuous | There is/are | Bijv.nw & bijw. | Verleden tijd | Can/Must/Should
+  // ══════════════════════════════════════════════
+  engels: { "VWO 1": {
+    uitleg: [
+      {
+        titel: "H1 · Present Simple",
+        intro: "De Present Simple (PS) gebruik je voor gewoontes, feiten, algemene waarheden en roosters. Het is de meest basisvorm van een werkwoord in het Engels.",
+        stappen: [
+          "Positief: onderwerp + infinitief. Bij he/she/it: voeg -s of -es toe. I play. She plays. He watches.",
+          "Negatief: onderwerp + do/does + not + infinitief. I don't play. She doesn't play.",
+          "Vraag: Do/Does + onderwerp + infinitief? Do you play? Does she play?",
+          "Onregelmatig: be (am/is/are), have (have/has).",
+          "Signaalwoorden: always, usually, often, sometimes, rarely, never, every day/week, on Mondays.",
+        ],
+        tip: "Alleen bij he/she/it: extra -s of -es. 'Does' + infinitief (geen -s).",
+        formule: "PS positief: S + V(s)   |   Negatief: S + don't/doesn't + V   |   Vraag: Do/Does + S + V?",
+        voorbeeld: "I eat breakfast. She eats breakfast. Do you eat? Does he eat? He doesn't eat.",
+      },
+      {
+        titel: "H2 · Present Continuous",
+        intro: "De Present Continuous (PC) gebruik je voor acties die op dit moment bezig zijn, tijdelijke situaties en toekomstige plannen die al vastliggen.",
+        stappen: [
+          "Positief: onderwerp + am/is/are + V-ing. I am playing. She is playing.",
+          "Negatief: onderwerp + am/is/are + not + V-ing. I'm not playing.",
+          "Vraag: Am/Is/Are + onderwerp + V-ing? Are you playing?",
+          "Spellingregels -ing: eindigt op -e → -e weg + -ing (make→making). Korte klinker + medeklinker → verdubbel (run→running).",
+          "Signaalwoorden: now, at the moment, at present, look!, listen!, currently, today, this week.",
+        ],
+        tip: "Gewoonte/feit → PS. Momenteel bezig → PC.",
+        formule: "PC: S + am/is/are + V-ing   |   Am I...? Is he...? Are you...?",
+        voorbeeld: "Look! It is raining! (nu bezig) | She is studying for her exam this week. (tijdelijk)",
+      },
+      {
+        titel: "H3 · There is / There are & have got",
+        intro: "'There is/are' gebruik je om te zeggen dat iets ergens bestaat of aanwezig is. 'Have got' drukt bezit of een eigenschap uit en is typisch voor het Brits-Engels.",
+        stappen: [
+          "There is + enkelvoud/ontelbaar. There is a cat in the garden. There is some milk in the fridge.",
+          "There are + meervoud. There are three books on the table.",
+          "Ontkennend: there isn't / there aren't. Vraag: Is there...? Are there...?",
+          "Have got: I/you/we/they have got. He/she/it has got. Short form: I've got, she's got.",
+          "Have got vraag: Have you got...? Has she got...? Ontkenning: I haven't got. She hasn't got.",
+        ],
+        tip: "There is/are = bestaan/aanwezig zijn. Have got = bezit. Beide zijn heel frequent in Brits Engels.",
+        formule: "There is/are + naamw.   |   S + have/has got + naamw.",
+        voorbeeld: "There are five students. Is there a doctor? | She has got blue eyes. Have you got a pen?",
+      },
+      {
+        titel: "H4 · Bijvoeglijke naamwoorden & bijwoorden + vergelijkingen",
+        intro: "Adjectives (bijvoeglijke naamwoorden) beschrijven nouns. Adverbs (bijwoorden) beschrijven verbs, adjectives of andere adverbs. Vergelijkingen maken gebruik van speciale vormen.",
+        stappen: [
+          "Adjective staat altijd vóór het noun: a fast car, a beautiful song.",
+          "Adverb vorming: adj. + -ly. quick→quickly. Uitzonderingen: good→well, fast→fast, hard→hard, early→early.",
+          "Vergelijkende trap (korte adj.): adj. + -er + than. tall→taller than. big→bigger than.",
+          "Overtreffende trap (korte adj.): the + adj. + -est. tall→the tallest.",
+          "Lange adj. (2+ lettergrepen): more/most + adj. more interesting, the most interesting.",
+          "Onregelmatig: good→better→best. bad→worse→worst. much/many→more→most.",
+        ],
+        tip: "Kort (1 lettergreep): -er/-est. Lang (2+ lettergrepen): more/most. Onregelmatig: uit het hoofd leren.",
+        formule: "Kort: adj + -er + than | the + adj + -est   |   Lang: more/most + adj",
+        voorbeeld: "Tom is taller than Jan. She is the tallest in the class. This book is more interesting.",
+      },
+      {
+        titel: "H5 · Past Simple (verleden tijd)",
+        intro: "De Past Simple gebruik je voor afgeronde acties op een specifiek moment in het verleden. Regelmatige werkwoorden krijgen -ed, onregelmatige werkwoorden hebben een eigen verleden tijdsvorm.",
+        stappen: [
+          "Regelmatig: V + -ed. walk→walked. play→played. Spelling: eindigt op -e → +d (like→liked). CVC → verdubbel (stop→stopped).",
+          "Onregelmatig: aparte vorm. go→went, see→saw, eat→ate, have→had, be→was/were, make→made.",
+          "Negatief: didn't + infinitief. I didn't go. She didn't eat.",
+          "Vraag: Did + S + infinitief? Did you go? Did she eat?",
+          "Signaalwoorden: yesterday, last week, in 2010, ago, when I was young, at that moment.",
+        ],
+        tip: "Onregelmatige werkwoorden moet je gewoon leren. Maak een lijst van de 50 meest voorkomende.",
+        formule: "PS +: S + V2/V-ed   |   PS −: S + didn't + V   |   PS ?: Did + S + V?",
+        voorbeeld: "I walked to school. He went to Paris. Did she eat? She didn't eat.",
+      },
+      {
+        titel: "H6 · Modal verbs: can, must, should",
+        intro: "Modal verbs zijn hulpwerkwoorden die mogelijkheid, verplichting of advies uitdrukken. Ze staan altijd vóór de infinitief zonder 'to' (behalve have to en ought to).",
+        stappen: [
+          "Can: vermogen (I can swim), mogelijkheid (It can be dangerous), toestemming (Can I leave?).",
+          "Could: verleden van can. Beleefd verzoek: Could you help me?",
+          "Must: sterke verplichting/noodzaak (You must wear a seatbelt). Must not = verbod (You mustn't smoke).",
+          "Have to: externe verplichting (I have to finish my homework). Ontkenning: don't/doesn't have to = niet verplicht.",
+          "Should: advies (You should eat more vegetables). Shouldn't = advies om iets niet te doen.",
+        ],
+        tip: "Must = intern/sterk. Have to = extern/regel. Should = advies. Must not = verbod. Don't have to = niet verplicht (geen verbod!).",
+        formule: "Modal + infinitief (zonder to)   |   Modal + not + infinitief",
+        voorbeeld: "You must stop! (wet) | You should stop. (advies) | You can swim here. (toegestaan) | You don't have to come. (niet verplicht, maar mag wel)",
+      },
+    ],
+    oefeningen: [
+      { vraag: "Kies PS of PC: 'Look! It ___ (rain).'", antwoord: "is raining", uitleg: "'Look!' = signaalwoord voor PC. It is raining.", hint: "'Look!' = nu bezig = PC.", moeilijkheid: 1 },
+      { vraag: "Kies PS of PC: 'She ___ (eat) breakfast every morning.'", antwoord: "eats", uitleg: "'Every morning' = gewoonte = PS. she→eats.", hint: "every morning = gewoonte = PS.", moeilijkheid: 1 },
+      { vraag: "Maak negatief (PS): 'He plays football.'", antwoord: "He doesn't play football.", uitleg: "he/she/it → doesn't + infinitief (geen -s).", hint: "He → doesn't. Infinitief, niet 'plays'.", moeilijkheid: 1 },
+      { vraag: "Maak een vraag (PC): '(you / study / now)'", antwoord: "Are you studying now?", uitleg: "PC vraag: Are + you + V-ing.", hint: "PC vraag: Are/Is/Am + S + V-ing?", moeilijkheid: 2 },
+      { vraag: "Gebruik there is/are: '___ many students in the school'", antwoord: "There are many students in the school.", uitleg: "students = meervoud → there are.", hint: "Meervoud → there are.", moeilijkheid: 1 },
+      { vraag: "Vergelijkende trap van 'intelligent'", antwoord: "more intelligent (than)", uitleg: "Meer dan 2 lettergrepen → more + adj.", hint: "Lang adj. → more + adj.", moeilijkheid: 1 },
+      { vraag: "Verander naar adverb: 'careful'", antwoord: "carefully", uitleg: "careful + ly = carefully.", hint: "Voeg -ly toe. Let op: -y → -ily.", moeilijkheid: 1 },
+      { vraag: "Past Simple van 'go, see, eat, make' (onregelmatig)", antwoord: "went, saw, ate, made", uitleg: "Onregelmatige werkwoorden: eigen verleden tijdsvorm.", hint: "Onregelmatig = eigen vorm, geen -ed.", moeilijkheid: 2 },
+      { vraag: "Maak negatief (PS): 'They went to the cinema yesterday.'", antwoord: "They didn't go to the cinema yesterday.", uitleg: "Past Simple negatief: didn't + infinitief.", hint: "PS negatief: didn't + V (infinitief, niet went!).", moeilijkheid: 2 },
+      { vraag: "Kies: 'You ___ wear a helmet. It's the law.' (must/should/can)", antwoord: "must", uitleg: "Wettelijke verplichting = must.", hint: "Is het een wet/sterke verplichting?", moeilijkheid: 2 },
+      { vraag: "Kies: 'You ___ eat more vegetables.' (advies)", antwoord: "should", uitleg: "Advies = should.", hint: "Advies = should. Sterke verplichting = must.", moeilijkheid: 1 },
+      { vraag: "Maak vraag (PS): 'She visited Paris last year.'", antwoord: "Did she visit Paris last year?", uitleg: "PS vraag: Did + S + infinitief.", hint: "PS vraag: Did + S + V (infinitief)?", moeilijkheid: 2 },
+    ],
+  }},
+
+  // ══════════════════════════════════════════════
+  // BIOLOGIE VWO 1
+  // Hoofdstukken: Cellen | Levenskenmerken/Indeling | Voeding/Spijsvertering | Bloedsomloop | Ademhaling | Zintuigen
+  // ══════════════════════════════════════════════
+  biologie: { "VWO 1": {
+    uitleg: [
+      {
+        titel: "H1 · Cellen: bouwstenen van het leven",
+        intro: "Alle levende organismen bestaan uit cellen. Een cel is de kleinste zelfstandig levende eenheid. Plantaardige en dierlijke cellen hebben veel gemeen, maar ook duidelijke verschillen.",
+        stappen: [
+          "Celkern (nucleus): bevat DNA met alle erfelijke informatie.",
+          "Celmembraan: omhult de cel en regelt wat er in en uit gaat (semi-permeabel).",
+          "Cytoplasma: vloeibaar deel van de cel waar chemische reacties plaatsvinden.",
+          "Mitochondriën: energie-aanmaak via celademhaling (in alle eukaryotische cellen).",
+          "ALLEEN plantcel: celwand (cellulose, stevigheid), chloroplasten (fotosynthese, groene kleur), grote vacuole (wateropslag, stevigheid).",
+        ],
+        tip: "Makkelijk te onthouden: planten hebben drie extra structuren: Celwand, Chloroplasten, Centrale vacuole (de drie C's).",
+        formule: "Diercel: celkern + celmembraan + mitochondriën + cytoplasma\nPlantcel: bovenstaande + celwand + chloroplasten + vacuole",
+        voorbeeld: "Spiercel: veel mitochondriën (veel energie nodig). Bladcel: veel chloroplasten (fotosynthese). Wortelcel: geen chloroplasten.",
+      },
+      {
+        titel: "H2 · Levenskenmerken en indeling van organismen",
+        intro: "Elk levend organisme vertoont zeven levenskenmerken. Op basis van overeenkomsten worden organismen ingedeeld in een classificatiesysteem (Linnaeus).",
+        stappen: [
+          "Zeven levenskenmerken: 1)Beweging, 2)Voeding opnemen, 3)Stofwisseling, 4)Groei, 5)Voortplanting, 6)Reactie op prikkels, 7)Uitscheiding.",
+          "Classificatieniveaus (van groot naar klein): Rijk → Stam → Klasse → Orde → Familie → Geslacht → Soort.",
+          "Wetenschappelijke naam: geslacht + soortnaam, altijd cursief. Homo sapiens, Canis lupus familiaris.",
+          "Vijf rijken: Animalia (dieren), Plantae (planten), Fungi (schimmels), Protista (protisten), Bacteria.",
+          "Eencellig vs. meercellig. Prokaryoot (geen celkern, bijv. bacteriën) vs. eukaryoot (met celkern).",
+        ],
+        tip: "Ezelsbruggetje indeling: 'Kan Slimme Karel Onze Familie Geheim Snel?' (Koninkrijk/Stam/Klasse/Orde/Familie/Geslacht/Soort).",
+        formule: "Rijk → Stam → Klasse → Orde → Familie → Geslacht → Soort",
+        voorbeeld: "Huiskat: Animalia→Chordata→Mammalia→Carnivora→Felidae→Felis→F. catus.",
+      },
+      {
+        titel: "H3 · Voeding en spijsvertering",
+        intro: "Het lichaam heeft voedingsstoffen nodig voor energie (koolhydraten/vetten), bouw (eiwitten), regeling (vitamines/mineralen) en transport (water). Via spijsvertering worden grote moleculen afgebroken tot kleine, opneembare stoffen.",
+        stappen: [
+          "Koolhydraten (zetmeel/suikers): afbreken tot glucose. Begin in mond via amylase (speeksel).",
+          "Eiwitten: afbreken tot aminozuren. Begin in maag via pepsine (in zuur milieu).",
+          "Vetten: afbreken tot glycerol + vetzuren. Begin in dunne darm via lipase. Gal emulgeert vetten eerst.",
+          "Opname: dunne darm heeft vlokken + microvlokken voor groot oppervlak. Glucose en aminozuren → bloed. Vetzuren → lymfe.",
+          "Organen: mond→slokdarm→maag→dunne darm→dikke darm→endeldarm.",
+        ],
+        tip: "Koolhydraten beginnen in de mond (amylase). Eiwitten beginnen in de maag (pepsine). Vetten beginnen in de dunne darm (lipase + gal).",
+        formule: "Koolhydr. → glucose | Eiwitten → aminozuren | Vetten → glycerol + vetzuren",
+        voorbeeld: "Brood eten: amylase in speeksel begint zetmeel af te breken al bij het kauwen.",
+      },
+      {
+        titel: "H4 · Bloedsomloop",
+        intro: "Het bloed transporteert zuurstof, voedingsstoffen, hormonen en afvalstoffen. Het hart pompt het bloed via twee kringlopen: de kleine kringloop (longen) en de grote kringloop (lichaam).",
+        stappen: [
+          "Kleine kringloop: rechterkamer → longslagader → longen (O₂ opnemen, CO₂ afgeven) → longader → linkerkamer.",
+          "Grote kringloop: linkerkamer → aorta → lichaamsslagaders → organen/spieren → aders → rechterboezem.",
+          "Bloedvaten: slagaders (van hart weg, dikke wand, hoge druk), aders (naar hart toe, dunner, kleppen), haarvaten (uitwisseling).",
+          "Bloed: rode bloedcellen (O₂-transport via hemoglobine), witte bloedcellen (afweer), bloedplaatjes (stolling), bloedplasma (transport).",
+          "Bloeddruk: systolisch (hart samengetrokken)/diastolisch (hart ontspannen). Normaal: ~120/80 mmHg.",
+        ],
+        tip: "Slagaders = weg van het hart. Aders = naar het hart. Haarvaten = uitwisseling. Linkerkamer pompt het sterkst (grote kringloop).",
+        formule: "Klein: rechts hart → longen → links hart   |   Groot: links hart → lichaam → rechts hart",
+        voorbeeld: "Bij inspanning: hart klopt sneller → meer O₂ naar spieren. Hartfrequentie stijgt van ~70 naar 150+ per minuut.",
+      },
+      {
+        titel: "H5 · Ademhaling en gasuitwisseling",
+        intro: "Ademhaling heeft twee betekenissen: 1) het inademen/uitademen (ventilatie) en 2) celademhaling (chemisch proces waarbij energie vrijkomt). Beide zijn nauw verbonden.",
+        stappen: [
+          "Ventilatie: inademen (longen uitzetten, middenrif omlaag) → O₂ in. Uitademen (longen samentrekken) → CO₂ eruit.",
+          "Longblaasjes (alveoli): dunne wand, rijk bebloed, groot oppervlak. Diffusie: O₂ van long naar bloed. CO₂ van bloed naar long.",
+          "Celademhaling (aeroob): glucose + O₂ → CO₂ + H₂O + energie (ATP). In mitochondriën.",
+          "Anaerobe ademhaling (bij zuurstoftekort): glucose → melkzuur + weinig energie. Veroorzaakt spierpijn.",
+          "Ademhalingsorganen: neus/mond → luchtpijp → bronchiën → bronchiolus → longblaasjes.",
+        ],
+        tip: "Aeroob = met zuurstof, veel ATP. Anaeroob = zonder zuurstof, weinig ATP, melkzuur.",
+        formule: "Celademhaling: C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + energie",
+        voorbeeld: "100-meter sprint: spieren gebruiken meer O₂ dan je kunt inademen → anaerobe ademhaling → melkzuur → spierpijn nadien.",
+      },
+      {
+        titel: "H6 · Zintuigen en reacties op prikkels",
+        intro: "Zintuigen nemen prikkels uit de omgeving waar en zetten ze om in zenuwsignalen. Het zenuwstelsel verwerkt deze signalen en stuurt een reactie.",
+        stappen: [
+          "Vijf zintuigen: zien (oog), horen/evenwicht (oor), ruiken (neus), proeven (tong), voelen/temperatuur/pijn (huid).",
+          "Het oog: hoornvlies → iris (regelt lichtinval) → lens (scherpstelling) → glasachtig lichaam → netvlies (kegeltjes=kleur, staafjes=donker) → gezichtszenuw.",
+          "Het oor: trommelvlies trillt → gehoorbeentjes → slakkenhuis (geluid) / halfcirkelvormige kanalen (evenwicht) → gehoorzenuw.",
+          "Prikkel-reactie: prikkel → zintuig → zenuw → hersenen → zenuw → spier/klier = reactie.",
+          "Reflex: prikkel → ruggemerg (zonder hersenen) → reactie. Sneller. Voorbeeld: hand wegtrekken bij pijn.",
+        ],
+        tip: "Reflexen gaan via het ruggemerg, niet de hersenen. Daarom zijn ze zo snel.",
+        formule: "Prikkel → Zintuig → Zenuw → Coördinatiecentrum → Zenuw → Uitvoerend orgaan",
+        voorbeeld: "Kniepeesreflex: tikje op knie → rekprikkel → ruggemerg → terug naar been → been schopt omhoog (zonder dat je het wil).",
+      },
+    ],
+    oefeningen: [
+      { vraag: "Welk organel produceert energie in de cel?", antwoord: "Mitochondriën", uitleg: "Mitochondriën maken ATP via celademhaling. Worden de energiecentrales van de cel genoemd.", hint: "Energiecentrale van de cel.", moeilijkheid: 1 },
+      { vraag: "Noem drie structuren die wél in een plantcel maar niet in een diercel aanwezig zijn.", antwoord: "Celwand, chloroplasten, grote vacuole", uitleg: "Dit zijn de drie kenmerkende plantaardige structuren.", hint: "Wat maakt een plant groen en stevig?", moeilijkheid: 1 },
+      { vraag: "Welk enzym breekt zetmeel af en waar begint dit?", antwoord: "Amylase, begint al in de mond (speekselklieren).", uitleg: "Amylase in speeksel begint zetmeel te hydrolyseren tot maltose.", hint: "Begin bij het kauwen.", moeilijkheid: 1 },
+      { vraag: "Noem de zeven levenskenmerken van organismen.", antwoord: "Beweging, voeding, stofwisseling, groei, voortplanting, reactie op prikkels, uitscheiding.", uitleg: "Alle zeven zijn nodig om als 'levend' beschouwd te worden.", hint: "Begin met B-V-S-G-V-R-U.", moeilijkheid: 2 },
+      { vraag: "Wat is het verschil tussen de kleine en grote bloedsomloop?", antwoord: "Klein: hart→longen→hart (zuurstof opnemen). Groot: hart→lichaam→hart (zuurstof afleveren).", uitleg: "Twee aparte kringlopen met het hart als pomp.", hint: "Klein = longen. Groot = rest van lichaam.", moeilijkheid: 2 },
+      { vraag: "Wat is diffusie en hoe speelt het een rol in de longen?", antwoord: "Diffusie: stoffen bewegen van hoge naar lage concentratie. In longen: O₂ diffundeert van longblaasje naar bloed, CO₂ van bloed naar longblaasje.", uitleg: "Longblaasjes hebben dunne wand en veel oppervlak → efficiënte gaswisseling.", hint: "Van hoog naar laag. Wat heeft het bloed dat aankomt bij de longen?", moeilijkheid: 2 },
+      { vraag: "Schrijf de vergelijking voor celademhaling op.", antwoord: "C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + energie", uitleg: "Glucose + zuurstof levert energie (ATP), water en koolstofdioxide op.", hint: "Glucose + O₂ → CO₂ + H₂O + energie.", moeilijkheid: 2 },
+      { vraag: "Waarvoor dient gal in de spijsvertering?", antwoord: "Gal emulgeert vetten: breekt grote vetdruppels op in kleinere druppels zodat lipase beter kan werken. Gemaakt in lever, opgeslagen in galblaas.", uitleg: "Gal bevat geen enzymen maar maakt vetten toegankelijker voor het enzym lipase.", hint: "Gal is geen enzym. Het emulgeert.", moeilijkheid: 2 },
+      { vraag: "Wat is het verschil tussen een reflex en een normale reactie?", antwoord: "Reflex: via ruggemerg (snel, automatisch, onbewust). Normale reactie: via hersenen (bewust, langzamer).", uitleg: "Reflexen zijn sneller omdat het signaal niet naar de hersenen hoeft.", hint: "Reflex = ruggemerg. Bewuste reactie = hersenen.", moeilijkheid: 2 },
+      { vraag: "Noem de functies van rode bloedcellen, witte bloedcellen en bloedplaatjes.", antwoord: "Rood: zuurstoftransport (hemoglobine). Wit: afweer (infecties bestrijden). Plaatjes: bloedstolling.", uitleg: "Drie verschillende bloedceltypes met specifieke functies.", hint: "Rood=O₂. Wit=afweer. Plaatjes=stolling.", moeilijkheid: 2 },
+      { vraag: "Hoe verschilt aeroobe van anaerobe ademhaling?", antwoord: "Aeroob: met O₂, veel ATP, eindproducten CO₂+H₂O. Anaeroob: zonder O₂, weinig ATP, eindproduct melkzuur (of ethanol bij gist).", uitleg: "Anaerobe ademhaling is minder efficiënt maar werkt bij zuurstoftekort.", hint: "Aeroob = met lucht. Anaeroob = zonder.", moeilijkheid: 2 },
+    ],
+  }},
+
+  // ══════════════════════════════════════════════
+  // AARDRIJKSKUNDE VWO 1
+  // Hoofdstukken: Klimaat | Kaartlezen | Weer | Landschappen | Plaat tektoniek | Bevolking
+  // ══════════════════════════════════════════════
+  aardrijkskunde: { "VWO 1": {
+    uitleg: [
+      {
+        titel: "H1 · Klimaatzones van de wereld",
+        intro: "Klimaat is het gemiddelde weer over een lange periode (≥30 jaar). De verdeling van klimaatzones hangt af van breedtegraad, hoogte, afstand tot de zee en oceaanstromen. We onderscheiden vijf hoofdzones.",
+        stappen: [
+          "Equatoriaal (0°–10° N/Z): warm en nat heel het jaar (>2000 mm/jaar). Tropisch regenwoud. Bijv: Amazone, Congo.",
+          "Tropisch/savanne (10°–20°): regen- en droogseizoen. Bijv: West-Afrika, Noord-Australië.",
+          "Subtropisch (20°–40°): droog (woestijnen) of mediterraan (droge zomer, zachte natte winter). Bijv: Sahara, Middellandse Zee.",
+          "Gematigd (40°–60°): vier seizoenen. Maritiem (dicht bij zee, milde temperaturen) of continentaal (binnenland, extreme temperaturen).",
+          "Polair (60°–90°): ijskoud, weinig neerslag. Toendra en ijskappen. Bijv: Siberië, Antarctica.",
+        ],
+        tip: "Van evenaar naar pool: HOT (equatoriaal) → DROOG (subtropisch) → MILD (gematigd) → IJSKOUD (polair).",
+        formule: "Klimaattype ← Breedtegraad + Afstand zee + Hoogte + Oceaanstromen",
+        voorbeeld: "Nederland: gematigd zeeklimaat. Koele zomers (≈17°C), milde winters (≈3°C), neerslag verspreid over het jaar.",
+      },
+      {
+        titel: "H2 · Kaartvaardigheden",
+        intro: "Kaarten zijn vereenvoudigde weergaven van de werkelijkheid. Om ze te lezen heb je kennis nodig van schaal, coördinaten, hoogtelijnen en de legenda.",
+        stappen: [
+          "Schaal: kaartmeting:werkelijkheid. 1:25.000 → 1 cm = 250 m. 1:100.000 → 1 cm = 1 km.",
+          "Coördinaten: breedte (lat.) = N/Z van evenaar, lengte (long.) = O/W van Greenwich. Notatie: 52°N, 4°E.",
+          "Hoogtelijnen (isohypsen): verbinden punten op gelijke hoogte. Dicht bij elkaar = steil. Wijd = flauw. Gesloten cirkel = berg of kom.",
+          "Legenda: verklaart alle symbolen, kleuren en lijnen op de kaart.",
+          "Windrichtingen: N(oord), O(ost), Z(uid), W(est). Intermediair: NO, ZO, ZW, NW.",
+        ],
+        tip: "Ezelsbruggetje windrichtingen: 'Nooit Ooit Zonder West'. Schaalgroter getal = meer ingezoomd UIT.",
+        formule: "Werkelijke afstand = kaartafstand × schaalnoemer",
+        voorbeeld: "1:50.000 kaart, weg = 3 cm → 3 × 50.000 = 150.000 cm = 1,5 km.",
+      },
+      {
+        titel: "H3 · Weer en atmosfeer",
+        intro: "Weer is de toestand van de atmosfeer op een bepaald moment. Klimaat is het langjarig gemiddelde. Weersomstandigheden worden bepaald door luchtdruk, temperatuur, vochtigheid en wind.",
+        stappen: [
+          "Luchtdruk: hoge druk (H) = droge, stabiele lucht, mooi weer. Lage druk (L) = onstabiele lucht, bewolking, neerslag.",
+          "Wind: beweegt van hoge naar lage druk. Coriolis-effect buigt wind rechtsaf op noordelijk halfrond.",
+          "Neerslag: ontstaat als vochtige lucht afkoelt en water condenseert. Orografisch (bergrug), frontaal (warm/koud front), convectief (opwarming).",
+          "Temperatuurgradient: −0,6°C per 100 m hoogte. Bergen zijn koeler.",
+          "Klimaatgrafieken (klimatogrammen): staafdiagram (neerslag, mm) + lijndiagram (temperatuur, °C) per maand.",
+        ],
+        tip: "H = Hou het droog. L = Let op regen. Wind waait van H naar L.",
+        formule: "Temperatuurgradient: −0,6°C per 100 m hoogte",
+        voorbeeld: "Bergen: zeeniveau 20°C → op 2000 m hoogte: 20 − (20×0,6) = 8°C.",
+      },
+      {
+        titel: "H4 · Landschappen en bodems",
+        intro: "Een landschap is de zichtbare verschijning van een gebied, bepaald door reliëf, bodem, begroeiing en waterhuishouding. Bodems vormen zich over lange tijd uit moedermateriaal.",
+        stappen: [
+          "Reliëf: hoogte en vorm van het aardoppervlak. Bergen, plateaus, dalen, vlaktes.",
+          "Erosie: afslijting van het landschap door water (rivier), wind, ijs. Transport van sediment.",
+          "Sedimentatie: neerleggen van materiaal. Rivierdeltas, stranden, duinen.",
+          "Bodemtypen: zandbodem (goed doorlatend, arm), kleibodem (vruchtbaar, slecht doorlatend), veenbodem (organisch, samendrukbaar).",
+          "Nederland: Nederland ligt voor een groot deel onder zeeniveau. Polders, dijken, waterhuishouding essentieel.",
+        ],
+        tip: "Erosie = wegslijten. Sedimentatie = neerleggen. Rivieren: bovenstrooms erosie, benedenstrooms sedimentatie.",
+        formule: "Erosie ← Neerslag + Helling + Bodembedekking",
+        voorbeeld: "Rijn: erosie in Alpen (sterk water). Sedimentatie in Nederland (rustig water). Rijndelta.",
+      },
+      {
+        titel: "H5 · Plaattektoniek en vulkanisme",
+        intro: "De aardkorst is opgedeeld in grote stukken (tektonische platen) die bewegen over de vloeibare mantel. Aan de grenzen van platen vinden aardbevingen, vulkaanuitbarstingen en gebergtevorming plaats.",
+        stappen: [
+          "Lithosferische platen: oceaanplaten (zwaarder, basalt) en continentale platen (lichter, graniet).",
+          "Divergente grens: platen bewegen van elkaar af. Oceaanbodem spreidt. Mid-Atlantische Rug. Vulkanen, geisers.",
+          "Convergente grens: platen botsen. Oceaanplaat duikt onder continentale plaat (subductie) → vulkanen + diep zeetrench. Of twee continenten botsen → gebergte (Himalaya).",
+          "Transforme grens: platen schuiven langs elkaar. Aardbevingen (San Andreas Fault).",
+          "Hotspot: stationaire warmtepool in mantel. Eilandketen (Hawaï).",
+        ],
+        tip: "Subductie: oceaanplaat duikt ALTIJD onder continentale plaat (zwaarder). Levert vulkanen op.",
+        formule: "Divergent: uiteen → rug/vulkaan | Convergent: bijeen → gebergte/trench | Transform: langs → aardbeving",
+        voorbeeld: "Japanse aardbevingen: Pacific plate duikt onder Euraziatische plaat → bevingen + tsunami's.",
+      },
+      {
+        titel: "H6 · Bevolking en bevolkingsspreiding",
+        intro: "De wereldbevolking bedraagt ruim 8 miljard mensen (2024). De spreiding is zeer ongelijkmatig. Bevolkingsdichtheid geeft aan hoeveel mensen per km² wonen. Bevolkingsgroei hangt af van geboorte- en sterftecijfer.",
+        stappen: [
+          "Bevolkingsdichtheid: aantal inwoners / oppervlakte (km²). Nederland ≈ 520 inw/km² (dicht). Canada ≈ 4 inw/km² (dun).",
+          "Geboortecijfer: aantal geborenen per 1000 inwoners per jaar.",
+          "Sterftecijfer: aantal overledenen per 1000 inwoners per jaar.",
+          "Natuurlijke groei = geboortecijfer − sterftecijfer.",
+          "Factoren bevolkingsspreiding: klimaat, landbouwgeschiktheid, water, reliëf, industrie/werk, historisch.",
+        ],
+        tip: "Dichte bevolking: vruchtbare rivierdalen, kustgebieden, gematigd klimaat. Dunne bevolking: woestijnen, poolgebieden, hoge bergen.",
+        formule: "Bevolkingsdichtheid = inwoners / opp.(km²)   |   Groei = geboortecijfer − sterftecijfer",
+        voorbeeld: "Nijldal vs. Saharawoestijn: allebei in Egypte, maar Nijldal superdruk (water!) en Sahara vrijwel leeg.",
+      },
+    ],
+    oefeningen: [
+      { vraag: "Welk klimaat heeft het hele jaar hoge temperaturen en veel neerslag?", antwoord: "Equatoriaal klimaat (bij de evenaar; bijv. Amazone, Congo).", uitleg: "Bij de evenaar staat de zon altijd hoog → veel verdamping → veel neerslag. Geen seizoenen.", hint: "Tropisch regenwoud heeft dit klimaat.", moeilijkheid: 1 },
+      { vraag: "Op een 1:25.000 kaart is een weg 4 cm lang. Hoe lang in werkelijkheid?", antwoord: "1 km (4 × 25.000 cm = 100.000 cm = 1 km)", uitleg: "Werkelijke afstand = kaartmeting × schaalnoemer.", hint: "Kaartafstand × schaalnoemer = werkelijke afstand.", moeilijkheid: 1 },
+      { vraag: "Waarom is het klimaat aan de Nederlandse kust milder dan diep in het binnenland?", antwoord: "Zee heeft grote warmtecapaciteit: warmt langzaam op en koelt langzaam af. Dempt temperatuurextremen → zeeklimaat.", uitleg: "Continentaal klimaat = heetere zomers en koudere winters dan zeeklimaat.", hint: "Water behoudt warmte langer dan land.", moeilijkheid: 2 },
+      { vraag: "Wat vertellen dichtbijstaande hoogtelijnen op een kaart?", antwoord: "Steil terrein: weinig horizontale afstand maar groot hoogteverschil.", uitleg: "Hoe dichter de hoogtelijnen, hoe steiler het reliëf.", hint: "Dicht = steil. Ver uit elkaar = flauw reliëf.", moeilijkheid: 1 },
+      { vraag: "Noem twee factoren waarom de Sahara vrijwel onbewoond is.", antwoord: "Extreme hitte, vrijwel geen neerslag, geen drinkwater, nauwelijks landbouw mogelijk.", uitleg: "Extreme omstandigheden maken permanent verblijf bijna onmogelijk.", hint: "Denk aan klimaat en water.", moeilijkheid: 1 },
+      { vraag: "Wat is het verschil tussen erosie en sedimentatie?", antwoord: "Erosie: afslijten/wegspoelen van materiaal. Sedimentatie: neerleggen van dat materiaal op een andere plek.", uitleg: "Rivieren eroseren in het gebergte en sedimenteren in het vlakke land/delta.", hint: "Erosie = wegslijten. Sedimentatie = neerleggen.", moeilijkheid: 2 },
+      { vraag: "Wat gebeurt er aan een convergente grenszone waarbij een oceaanplaat en een continentale plaat botsen?", antwoord: "De oceaanplaat duikt onder de continentale plaat (subductie). Geeft aanleiding tot vulkanen, aardbevingen en zeetrench.", uitleg: "Oceaanplaat is zwaarder (basalt) en zakt weg onder de lichtere continentale plaat.", hint: "Subductie: oceaan duikt onder continent.", moeilijkheid: 2 },
+      { vraag: "Bereken de bevolkingsdichtheid van een land met 17 miljoen inwoners en 41.500 km².", antwoord: "≈ 410 inwoners/km²", uitleg: "17.000.000 / 41.500 ≈ 410 inw/km². Dit zijn de getallen van Nederland.", hint: "Bevolkingsdichtheid = inwoners / oppervlakte.", moeilijkheid: 2 },
+      { vraag: "Noem de vijf klimaatzones van evenaar naar pool.", antwoord: "Equatoriaal → Tropisch/savanne → Subtropisch → Gematigd → Polair", uitleg: "De zones worden van de evenaar naar de poolgebieden koeler en droger (met uitzondering van het subtropisch).", hint: "Van equator naar pool: 5 zones.", moeilijkheid: 2 },
+      { vraag: "Bereken de natuurlijke bevolkingsgroei als geboortecijfer=20‰ en sterftecijfer=8‰.", antwoord: "12‰ (per 1000 inwoners per jaar)", uitleg: "Groei = 20 − 8 = 12 per 1000 inwoners.", hint: "Groei = geboortecijfer − sterftecijfer.", moeilijkheid: 1 },
+    ],
+  }},
+
+  // ══════════════════════════════════════════════
+  // GESCHIEDENIS VWO 1
+  // Hoofdstukken: TV1-Jagers | TV2-Grieken | TV3-Monniken | TV4-Steden | TV5-Ontdekkers | Historisch redeneren
+  // ══════════════════════════════════════════════
+  geschiedenis: { "VWO 1": {
+    uitleg: [
+      {
+        titel: "H1 · Tijdvak 1: Jagers en boeren (voor 3000 v.Chr.)",
+        intro: "De prehistorie is de tijd vóór het schrift. Mensen leefden als nomaden (jagers-verzamelaars) totdat ze landbouw ontwikkelden (Neolithische revolutie). Dit was een van de grootste omwentelingen in de menselijke geschiedenis.",
+        stappen: [
+          "Paleolithicum (Oude Steentijd): nomadische jagers-verzamelaars. Werktuigen van steen. Vuur.",
+          "Neolithicum (Nieuwe Steentijd): introductie van landbouw en veeteelt (~10.000 v.Chr. in Vruchtbare Halve Maan).",
+          "Gevolgen landbouw: sedentair leven (vaste nederzettingen), bevolkingsgroei, sociale ongelijkheid, handel, gespecialiseerde beroepen.",
+          "Megalithische culturen: Stonehenge (≈3000 v.Chr.), hunebedden (Noord-Nederland, ≈3000 v.Chr.).",
+          "Kenmerkende aspecten TV1: nomadisch leven, landbouwrevolutie, megalieten.",
+        ],
+        tip: "Paleo = oud, Neo = nieuw. De Neolithische revolutie = overstap van nomadisch naar sedentair leven door landbouw.",
+        formule: "TV1: voor 3000 v.Chr. | Paleolithicum → Neolithicum | Nomaden → Sedentair",
+        voorbeeld: "Hunebed D27 (Borger, NL): ≈3000 v.Chr. gebouwd als collectief graf door boeren die korte tijd na de landbouwrevolutie leefden.",
+      },
+      {
+        titel: "H2 · Tijdvak 2: Grieken en Romeinen (3000 v.Chr.–500 n.Chr.)",
+        intro: "De Grieks-Romeinse oudheid legde de fundamenten voor de westerse beschaving: democratie, filosofie, wetenschap, rechtssysteem en architectuur.",
+        stappen: [
+          "Griekse stadstaten (poleis): Athene (directe democratie, alle vrije mannen stemmen), Sparta (militarisme, oligarchie).",
+          "Griekse filosofen: Socrates (kritisch denken, maieutiek), Plato (ideeënleer), Aristoteles (empirisme, logica).",
+          "Hellenisme: verspreiding Griekse cultuur door Alexander de Grote (336–323 v.Chr.).",
+          "Romeinse Republiek (509–27 v.Chr.): Senaat, volkstribunen, Twaalftafelenwet.",
+          "Romeins Keizerrijk: Augustus (27 v.Chr.), Pax Romana (200 jaar vrede en welvaart), verspreiding christendom (staatsgodsdienst 313 n.Chr.).",
+        ],
+        tip: "Griekenland = denken en democratie. Rome = bouwen, besturen, recht. Beide zijn fundamenten van de westerse cultuur.",
+        formule: "TV2: 3000 v.Chr.–500 n.Chr. | Democratie(GR) + Recht(ROM) = Westerse fundamenten",
+        voorbeeld: "Trias politica (Montesquieu) was geïnspireerd op de Romeinse staatsvorm met Senaat, consuls en volkstribunen.",
+      },
+      {
+        titel: "H3 · Tijdvak 3: Monniken en ridders (500–1000 n.Chr.)",
+        intro: "Na de val van het West-Romeinse Rijk (476 n.Chr.) veranderde Europa fundamenteel. Feodalisme en de kerk domineerden de samenleving. Karel de Grote probeerde het Rijk te hereniging.",
+        stappen: [
+          "Val van Rome (476): Germania invallen breken het Westen op. Begin van de Middeleeuwen.",
+          "Feodalisme: hiërarchisch systeem: koning geeft land (feodum) aan edelen in ruil voor loyaliteit en militaire dienst. Edelen geven land aan ridders, ridders aan boeren.",
+          "De kerk: enorme macht. Paus, bisdommen, kloosters. Monastieke beweging (Benedictus).",
+          "Karel de Grote (768–814): veroverde groot deel van Europa. Herstelde centraal gezag. Carolingische Renaissance (onderwijs, schrift).",
+          "Kenmerkende aspecten TV3: feodalisme, kerk, ridders, kastelen, Vikingen.",
+        ],
+        tip: "Feodalisme = leenheer-leenman. Kern: land in ruil voor dienst. De kerk had grote macht naast de adel.",
+        formule: "TV3: 500–1000 | Feodalisme (land ↔ dienst) + Kerkelijke macht = Middeleeuwse samenleving",
+        voorbeeld: "Kasteel = machtssymbool van de adel. Klooster = centrum van kennis en religie. Beide kenmerkend voor TV3.",
+      },
+      {
+        titel: "H4 · Tijdvak 4: Steden en staten (1000–1500)",
+        intro: "Vanaf circa 1000 herleefde de handel en groeiden steden. Kruistochten verbonden Europa met het Midden-Oosten. De opkomst van universitieten en de Zwarte Dood veranderden de samenleving ingrijpend.",
+        stappen: [
+          "Opkomst steden: handel → markten → steden. Burgerstand (bourgeoisie) naast adel en kerk.",
+          "Kruistochten (1096–1291): religieuze oorlogen om Heilig Land te bevrijden. Gevolg: contacten Oost-West, handel, Arabisch-Griekse kennis naar Europa.",
+          "Universiteiten: Bologna (1088), Oxford (1096), Leiden (1575). Scholastiek denken.",
+          "Zwarte Dood (pest, 1347–1353): doodde ⅓ van de Europese bevolking. Sociale onrust, twijfel aan kerk, arbeidsschaarste → einde feodalisme.",
+          "Kenmerkende aspecten TV4: stadsrechten, kruistochten, universiteiten, pest, Renaissance begint.",
+        ],
+        tip: "De pest (1347) was een keerpunt: enorme sterfgevallen → arbeidsschaarste → boeren konden betere voorwaarden eisen → einde feodalisme.",
+        formule: "TV4: 1000–1500 | Handel → Steden → Burgerstand | Pest → Crisis → Verandering",
+        voorbeeld: "Hanzesteden (waaronder Amsterdam, Hamburg, Lübeck): handelsmacht van de middeleeuwse steden. Handelsroutes over Rijn en Noordzee.",
+      },
+      {
+        titel: "H5 · Tijdvak 5: Ontdekkers en hervormers (1500–1600)",
+        intro: "De 16e eeuw bracht enorme veranderingen: Europese zeelieden ontdekten nieuwe werelden. De Renaissance vernieuwde kunst en wetenschap. De Reformatie brak de eenheid van de kerk.",
+        stappen: [
+          "Ontdekkingsreizen: Columbus (1492, Amerika), Vasco da Gama (1498, India route), Magelhaen (1519–1522, eerste wereldreis).",
+          "Renaissance: terugkeer naar klassieke Grieks-Romeinse idealen. Humanisme: mens centraal. Da Vinci, Michelangelo, Erasmus.",
+          "Gutenberg drukt 1455: boekdrukkunst verspreidde kennis razendsnel → Reformatie mogelijk.",
+          "Reformatie (1517): Luther protesteert tegen aflaten → protestantisme. Calvinisme (Calvijn). Augsburger Vrede (1555): 'Cuius regio, eius religio'.",
+          "Kolonialisme: Europeanen vestigen handelsposten en koloniën in Amerika, Afrika, Azië. Slavenhandel begint.",
+        ],
+        tip: "1492 = Columbus. 1517 = Luther. 1455 = boekdrukkunst. Drie sleuteldata voor dit tijdvak.",
+        formule: "TV5: 1500–1600 | Ontdekkingen + Renaissance + Reformatie = Vroegmoderne tijd",
+        voorbeeld: "Luther's 95 stellingen (1517) verspreidde zich via Gutenbergs drukpers over heel Europa → kerkscheuring.",
+      },
+      {
+        titel: "H6 · Historisch redeneren en begrippen",
+        intro: "Historisch redeneren betekent verbanden leggen, oorzaken en gevolgen onderscheiden, continuïteit en verandering herkennen en historische bronnen kritisch evalueren.",
+        stappen: [
+          "Oorzaak vs. aanleiding: structurele oorzaken liggen dieper (economisch, sociaal). Aanleiding is de onmiddellijke trigger.",
+          "Continuïteit: wat bleef gelijk? Verandering: wat was nieuw?",
+          "Historische bronnen: primaire bron (contemporain, direct), secundaire bron (latere analyse). Betrouwbaarheid beoordelen: wie schreef het? Wanneer? Doel?",
+          "Periodisering: verdelen van de tijd in perioden. Tijdvakken zijn hulpmiddelen — grenzen zijn nooit absoluut.",
+          "Historisch perspectief: mensen in het verleden hadden andere normen, waarden en kennis. 'Jij zou het ook gedaan hebben' principe.",
+        ],
+        tip: "Oorzaak ≠ aanleiding. WO1: aanleiding = moord Franz Ferdinand. Oorzaken = nationalisme, imperialisme, bondgenootschappen, militarisme.",
+        formule: "Oorzaak (structureel) → Aanleiding (trigger) → Verloop → Gevolg",
+        voorbeeld: "Pest TV4: oorzaak=slechte hygiëne, aanleiding=rattenmigratie, gevolg=bevolkingskrimp+sociale revolutie.",
+      },
+    ],
+    oefeningen: [
+      { vraag: "Wat is de Neolithische revolutie en wanneer vond het plaats?", antwoord: "Overgang van nomadische jacht en verzamelen naar landbouw en veeteelt. Begon ±10.000 v.Chr. in het Midden-Oosten.", uitleg: "De Neolithische revolutie was een van de grootste omwentelingen: mensen gingen van rondtrekken naar vaste nederzettingen.", hint: "Neo = nieuw. Landbouw = vaste nederzettingen.", moeilijkheid: 1 },
+      { vraag: "In welk tijdvak past de ontdekking van Amerika door Columbus (1492)?", antwoord: "Tijdvak 5: Ontdekkers en hervormers (1500–1600). 1492 valt net iets voor maar wordt bij dit tijdvak gerekend.", uitleg: "De ontdekkingsreizen zijn het meest kenmerkende aspect van TV5.", hint: "Columbus + ontdekkingen + 1492 = TV5.", moeilijkheid: 1 },
+      { vraag: "Wat is feodalisme? In welk tijdvak hoort het?", antwoord: "Feodalisme: hiërarchisch systeem waarbij de koning land geeft aan edelen in ruil voor loyaliteit en militaire dienst. TV3 (Monniken en ridders, 500–1000).", uitleg: "Leenheer-leenman verhouding. De kerk had ook grote macht in dit tijdvak.", hint: "Ridders, kastelen, leenheer = feodalisme, TV3.", moeilijkheid: 2 },
+      { vraag: "Wat is het verschil tussen Athense democratie en de democratie van nu?", antwoord: "Athene: directe democratie, alleen vrije mannen mogen stemmen (geen vrouwen, slaven, buitenlanders). Nu: representatieve democratie, algemeen stemrecht.", uitleg: "Griekse democratie was exclusief. Moderne democratie is inclusiever.", hint: "Direct vs. vertegenwoordigend. En wie mocht meedoen?", moeilijkheid: 2 },
+      { vraag: "Wat waren twee gevolgen van de Zwarte Dood (1347–1353)?", antwoord: "1) Enorme sterfte (⅓ Europa). 2) Twijfel aan kerk (God beschermde niet). 3) Arbeidsschaarste → einde feodalisme. 4) Sociale onrust.", uitleg: "De pest veranderde de samenleving fundamenteel door demografische en sociale schokken.", hint: "Bevolkingsafname → minder arbeid → betere positie van boeren.", moeilijkheid: 2 },
+      { vraag: "Wat is het verschil tussen een primaire en secundaire historische bron?", antwoord: "Primair: contemporain (uit de tijd zelf). Secundair: latere analyse van historici.", uitleg: "Een ooggetuigenverslag van de pest is primair. Een geschiedenisboek over de pest is secundair.", hint: "Primair = direct/contemporain. Secundair = latere analyse.", moeilijkheid: 1 },
+      { vraag: "Wat was de rol van de boekdrukkunst bij de Reformatie?", antwoord: "Gutenbergs boekdrukkunst (1455) maakte massaverspreiding van ideeën mogelijk. Luthers 95 stellingen (1517) verspreidde zich razendsnel → kerkscheuring.", uitleg: "Voor de drukpers kon de kerk informatie controleren. Daarna niet meer.", hint: "Drukpers = snelle verspreiding informatie = kerk verliest informatiecontrole.", moeilijkheid: 2 },
+      { vraag: "Noem de tien tijdvakken van de Nederlandse/westerse geschiedenis in de juiste volgorde.", antwoord: "1)Jagers en boeren, 2)Grieken en Romeinen, 3)Monniken en ridders, 4)Steden en staten, 5)Ontdekkers en hervormers, 6)Regenten en vorsten, 7)Pruiken en revoluties, 8)Burgers en stoommachines, 9)Wereldoorlogen, 10)Televisie en computer.", uitleg: "Tien tijdvakken van voor 3000 v.Chr. tot heden.", hint: "Chronologisch: prehistorie → oudheid → middeleeuwen → vroegmodern → modern → heden.", moeilijkheid: 3 },
+      { vraag: "Noem het verschil tussen oorzaak en aanleiding. Gebruik een voorbeeld.", antwoord: "Oorzaak: structurele, dieper liggende factor (bijv. feodale ongelijkheid). Aanleiding: directe trigger (bijv. een hongersnood). Ze verschillen in tijdshorizon en diepgang.", uitleg: "De aanleiding is de druppel die de emmer doet overlopen. De oorzaak is waarom de emmer al vol zat.", hint: "Oorzaak = structureel/diep. Aanleiding = directe trigger.", moeilijkheid: 2 },
+      { vraag: "Welke drie grote veranderingen kenmerken tijdvak 5 (1500–1600)?", antwoord: "1) Ontdekkingsreizen (Columbus, Vasco da Gama). 2) Renaissance en humanisme. 3) Reformatie (Luther, Calvijn).", uitleg: "Deze drie processen veranderden Europa fundamenteel.", hint: "Ontdekken + Vernieuwen + Hervormen = TV5.", moeilijkheid: 2 },
+    ],
+  }},
+
+  // ══════════════════════════════════════════════
+  // FRANS VWO 1
+  // Hoofdstukken: Présent | Lidwoorden | Vragen | Ontkenning | Adjectiven | Getallen/Datum
+  // ══════════════════════════════════════════════
+  frans: { "VWO 1": {
+    uitleg: [
+      {
+        titel: "H1 · Présent: regelmatige werkwoorden (-er, -ir, -re)",
+        intro: "Het présent is de meest gebruikte tijd in het Frans voor gewoontes, feiten en lopende acties. Regelmatige werkwoorden worden verdeeld in drie groepen op basis van hun infinitief-uitgang.",
+        stappen: [
+          "-ER werkwoorden (parler): stam (parl-) + -e, -es, -e, -ons, -ez, -ent. je parle, tu parles, il parle, nous parlons, vous parlez, ils parlent.",
+          "-IR werkwoorden (finir): stam (fin-) + -is, -is, -it, -issons, -issez, -issent. je finis, nous finissons.",
+          "-RE werkwoorden (vendre): stam (vend-) + -s, -s, —, -ons, -ez, -ent. je vends, il vend.",
+          "Let op: -er werkwoorden met stam op -g en -c krijgen spelling aanpassing: manger → nous mangeons. commencer → nous commençons.",
+        ],
+        tip: "Let op il/elle vend: geen uitgang! (RE-werkwoorden → 3e persoon enk. krijgt geen uitgang).",
+        formule: "-ER: -e/-es/-e/-ons/-ez/-ent   |   -IR: -is/-is/-it/-issons/-issez/-issent   |   -RE: -s/-s/—/-ons/-ez/-ent",
+        voorbeeld: "Je parle français. | Nous finissons nos devoirs. | Il vend sa voiture.",
+      },
+      {
+        titel: "H2 · Onregelmatige werkwoorden (être, avoir, aller, faire)",
+        intro: "De vier belangrijkste onregelmatige werkwoorden in het Frans moet je volledig uit het hoofd kennen. Ze zijn uitzonderlijk frequent en vormen de basis van bijna alle zinnen.",
+        stappen: [
+          "être (zijn): je suis, tu es, il/elle est, nous sommes, vous êtes, ils/elles sont.",
+          "avoir (hebben): j'ai, tu as, il/elle a, nous avons, vous avez, ils/elles ont.",
+          "aller (gaan): je vais, tu vas, il/elle va, nous allons, vous allez, ils/elles vont.",
+          "faire (maken/doen): je fais, tu fais, il/elle fait, nous faisons, vous faites, ils/elles font.",
+        ],
+        tip: "Vous êtes (niet: 'vous estes'). Ils sont (niet: 'ils êtent'). Onregelmatig = aparte vormen leren.",
+        formule: "être: suis/es/est/sommes/êtes/sont   |   avoir: ai/as/a/avons/avez/ont",
+        voorbeeld: "Je suis étudiant. (Ik ben leerling.) | Nous avons faim. (Wij hebben honger.) | Elle va à Paris. (Zij gaat naar Parijs.) | Il fait ses devoirs. (Hij maakt zijn huiswerk.)",
+      },
+      {
+        titel: "H3 · Lidwoorden: bepaald, onbepaald en partitief",
+        intro: "In het Frans heeft elk zelfstandig naamwoord een geslacht: masculin (m.) of féminin (f.). Het lidwoord past zich aan het geslacht en getal aan. Er zijn drie soorten: bepaald, onbepaald en partitief.",
+        stappen: [
+          "Bepaald lidwoord: le (m.enk.), la (f.enk.), les (mv.). Vóór klinker/stomme h: l'. le chat, la table, l'école, les enfants.",
+          "Onbepaald lidwoord: un (m.enk.), une (f.enk.), des (mv.). un stylo, une fille, des livres.",
+          "Partitief lidwoord: du (m.enk.), de la (f.enk.), de l' (klinker), des (mv.). Voor ontelbare/onbepaalde hoeveelheden. Je mange du pain.",
+          "Na ontkenning: alle lidwoorden worden de / d'. Je ne mange pas de pain. Il n'a pas de livre.",
+        ],
+        tip: "Leer elk nieuw woord altijd mét zijn lidwoord: niet 'chat' maar 'le chat'. Zo onthoud je het geslacht.",
+        formule: "le/la/les (bepaald) | un/une/des (onbepaald) | du/de la/des (partitief) | de (na ontkenning)",
+        voorbeeld: "J'ai un livre. → J'ai le livre de Marie. → Je bois du lait. → Je ne bois pas de lait.",
+      },
+      {
+        titel: "H4 · Vragen stellen en ontkenning",
+        intro: "Er zijn drie manieren om een vraag te stellen in het Frans, variërend in formaliteit. De ontkenning werkt met ne...pas om het werkwoord heen.",
+        stappen: [
+          "Intonatie (informeel): Tu parles français? (stijgende stem, geen verdere aanpassing).",
+          "Est-ce que (neutraal): Est-ce que tu parles français? (meest gebruikt in gesproken taal).",
+          "Inversie (formeel): Parles-tu français? (werkwoord vóór het onderwerp, koppelteken).",
+          "Vraagwoorden: qui (wie), quand (wanneer), où (waar), comment (hoe), pourquoi (waarom), combien (hoeveel), quel(le) (welk/welke).",
+          "Ontkenning: ne + werkwoord + pas. Je ne parle pas anglais. Ne wordt n' voor klinker: Il n'est pas là.",
+        ],
+        tip: "Ne wordt in gesproken Frans vaak weggelaten: 'Je parle pas.' Dit is informeel maar heel gebruikelijk.",
+        formule: "Est-ce que + S + V? | V + S? (inversie) | ne + V + pas (ontkenning)",
+        voorbeeld: "Où est-ce que tu habites? | Où habites-tu? | Je ne suis pas français.",
+      },
+      {
+        titel: "H5 · Bijvoeglijke naamwoorden (adjectiven)",
+        intro: "Bijvoeglijke naamwoorden in het Frans passen hun uitgang aan het geslacht en getal van het zelfstandig naamwoord aan. De meeste staan na het zelfstandig naamwoord; een kleine groep staat ervoor.",
+        stappen: [
+          "Vrouwelijk: +e. grand → grande. petit → petite. Eindigt al op -e: geen verandering (rouge → rouge).",
+          "Meervoud: +s. grand → grands. grande → grandes. Eindigt op -s of -x: geen verandering.",
+          "BAGS-adjectives staan VÓÓR het naamwoord: Beauty (beau/belle), Age (jeune/vieux), Goodness (bon/mauvais), Size (grand/petit).",
+          "Alle andere staan NA het naamwoord: kleuren, nationaliteiten, vormen, meeste andere. une voiture rouge, un homme français.",
+          "Onregelmatig: beau/belle, vieux/vieille, nouveau/nouvelle, blanc/blanche, bon/bonne.",
+        ],
+        tip: "BAGS staat vóór. De rest staat ná. Kleuren en nationaliteiten staan altijd NA.",
+        formule: "BAGS + nom.   |   nom. + adj.   |   Vrouwelijk: +e   |   Meervoud: +s",
+        voorbeeld: "Un grand homme (BAGS). Une voiture rouge (kleur, na). Une belle fille (BAGS, vóór, onregelmatig).",
+      },
+      {
+        titel: "H6 · Getallen, datum en tijd",
+        intro: "De getallen, datum en tijdsaanduidingen zijn essentieel voor dagelijkse communicatie. Frans heeft onregelmatigheden bij de getallen 70-99.",
+        stappen: [
+          "1–20: un, deux, trois, quatre, cinq, six, sept, huit, neuf, dix, onze, douze, treize, quatorze, quinze, seize, dix-sept, dix-huit, dix-neuf, vingt.",
+          "Tientallen: trente(30), quarante(40), cinquante(50), soixante(60), soixante-dix(70=60+10), quatre-vingts(80=4×20), quatre-vingt-dix(90=4×20+10).",
+          "Datum: le + getal + maand. le 5 mars = 5 maart. Maar: le premier janvier (1ste dag = premier).",
+          "Maanden: janvier, février, mars, avril, mai, juin, juillet, août, septembre, octobre, novembre, décembre.",
+          "Tijd: Il est + getal + heure(s). Il est trois heures. Il est midi (12:00). Il est minuit (00:00). Kwart: et quart. Half: et demie. Voor het uur: moins.",
+        ],
+        tip: "70=soixante-dix (60+10), 80=quatre-vingts (4×20), 90=quatre-vingt-dix (4×20+10). Dit zijn de typisch Franse telwoorden.",
+        formule: "70=soixante-dix | 80=quatre-vingts | 90=quatre-vingt-dix | Datum: le + dag + maand",
+        voorbeeld: "Il est quatre heures et quart. (4:15) | Nous sommes le quinze avril. (15 april) | J'ai soixante-dix-sept ans. (77 jaar)",
+      },
+    ],
+    oefeningen: [
+      { vraag: "Vervoeg 'parler' in het présent voor alle personen.", antwoord: "je parle, tu parles, il/elle parle, nous parlons, vous parlez, ils/elles parlent", uitleg: "-ER werkwoord, stam parl-. Uitgangen: -e/-es/-e/-ons/-ez/-ent.", hint: "Stam = infinitief zonder -er. Voeg de -er uitgangen toe.", moeilijkheid: 1 },
+      { vraag: "Vervoeg être voor alle personen.", antwoord: "je suis, tu es, il/elle est, nous sommes, vous êtes, ils/elles sont", uitleg: "être is volledig onregelmatig. Uit het hoofd leren.", hint: "suis / es / est / sommes / êtes / sont.", moeilijkheid: 2 },
+      { vraag: "Welk lidwoord gebruik je voor 'maison' (huis, vrouwelijk)?", antwoord: "la maison (bepaald) / une maison (onbepaald)", uitleg: "Vrouwelijk → la (bepaald) of une (onbepaald).", hint: "Vrouwelijk = la of une.", moeilijkheid: 1 },
+      { vraag: "Maak ontkennend: 'Je mange du pain.'", antwoord: "Je ne mange pas de pain.", uitleg: "ne...pas om het werkwoord. Du/de la/des → de na ontkenning.", hint: "ne + ww + pas. Du → de na ontkenning.", moeilijkheid: 2 },
+      { vraag: "Stel een vraag met est-ce que: 'Jij spreekt Frans'", antwoord: "Est-ce que tu parles français?", uitleg: "Est-ce que + normaal zinspatroon (S + V + complement).", hint: "Est-ce que + S + V + ...", moeilijkheid: 1 },
+      { vraag: "Maak het adjectief 'grand' vrouwelijk enkelvoud en meervoud.", antwoord: "grande (v.enk.) | grandes (v.mv.)", uitleg: "Vrouwelijk: +e. Meervoud: +s. Vrouwelijk mv.: +es.", hint: "Vrouwelijk: +e. Meervoud: +s.", moeilijkheid: 1 },
+      { vraag: "Vertaal: 'Wij gaan elke dag naar school.'", antwoord: "Nous allons à l'école tous les jours.", uitleg: "aller in présent: nous allons. école begint met klinker → l'école. Tous les jours = elke dag.", hint: "aller onregelmatig: nous allons. Alle dagen = tous les jours.", moeilijkheid: 2 },
+      { vraag: "Hoe zeg je 75 in het Frans?", antwoord: "soixante-quinze (60+15)", uitleg: "75 = soixante (60) + quinze (15) = soixante-quinze.", hint: "70 = soixante-dix. Dus 75 = soixante + 15.", moeilijkheid: 2 },
+      { vraag: "Schrijf de datum 14 juli in het Frans.", antwoord: "le quatorze juillet", uitleg: "le + getal + maand. 14 = quatorze, juillet = juli.", hint: "le + getal + maand. 14 = quatorze.", moeilijkheid: 1 },
+      { vraag: "Zet de zin in de inversievorm: 'Tu parles anglais?'", antwoord: "Parles-tu anglais?", uitleg: "Inversie: werkwoord vóór onderwerp, koppelteken ertussen.", hint: "Ww. + koppelteken + S.", moeilijkheid: 2 },
+      { vraag: "Vervoeg aller voor: je, tu, il, nous, vous, ils.", antwoord: "je vais, tu vas, il va, nous allons, vous allez, ils vont", uitleg: "aller is volledig onregelmatig in présent.", hint: "vais/vas/va/allons/allez/vont.", moeilijkheid: 2 },
+    ],
+  }},
+
+  // ══════════════════════════════════════════════
+  // NATUURKUNDE VWO 1
+  // Hoofdstukken: Kracht | Massa/Dichtheid | Druk | Beweging | Energie | Warmte
+  // ══════════════════════════════════════════════
+  natuurkunde: { "VWO 1": {
+    uitleg: [
+      {
+        titel: "H1 · Kracht en Newton's wetten",
+        intro: "Kracht is een duw of trek die de beweging van een voorwerp kan veranderen. Eenheid: Newton (N). Isaac Newton formuleerde drie wetten die alle mechanische beweging beschrijven.",
+        stappen: [
+          "1e wet (traagheid/inertie): een voorwerp blijft in rust of in eenparige rechtlijnige beweging tenzij een nettokracht werkt.",
+          "2e wet: F = m × a. Nettokracht = massa × versnelling. F in N, m in kg, a in m/s².",
+          "3e wet (actie-reactie): elke kracht heeft een even grote maar tegengestelde reactiekracht. Krachten staan op VERSCHILLENDE voorwerpen.",
+          "Zwaartekracht: F_z = m × g (g ≈ 10 N/kg op aardoppervlak).",
+          "Resultante kracht: F_res = 0 → evenwicht (rust of eenparige beweging). F_res ≠ 0 → versnelling.",
+        ],
+        tip: "Teken altijd een krachtenpijlendiagram. Pijllengte = krachtsgrootte. Richting van de pijl = richting van de kracht.",
+        formule: "F = m × a   |   F_z = m × g (g ≈ 10 N/kg)",
+        voorbeeld: "Auto 1200 kg, a=2 m/s² → F_net = 1200×2 = 2400 N. Zwaartekracht op 70 kg mens: F = 70×10 = 700 N.",
+      },
+      {
+        titel: "H2 · Massa, volume en dichtheid",
+        intro: "Massa (m) is de hoeveelheid stof in een voorwerp (kg). Volume (V) is de ruimte die een voorwerp inneemt (m³ of cm³). Dichtheid (ρ, rho) is de massa per volume-eenheid en bepaalt of iets drijft of zinkt.",
+        stappen: [
+          "Formule: ρ = m / V. ρ in kg/m³ of g/cm³.",
+          "Water: ρ = 1 g/cm³ = 1000 kg/m³. Als ρ_object < ρ_water → drijft. Als ρ_object > ρ_water → zinkt.",
+          "Omrekenen volume: 1 cm³ = 1 mL. 1 L = 1 dm³ = 1000 cm³. 1 m³ = 1.000.000 cm³.",
+          "Driehoeksmethode: bedek het gevraagde in de driehoek. ρ = m/V. m = ρ×V. V = m/ρ.",
+          "Opwaartse kracht (Archimedes): F_op = ρ_vloeistof × g × V_ondergekomen deel.",
+        ],
+        tip: "Driehoeksmethode: schrijf ρ bovenaan, m×V onderaan. Bedek wat je zoekt.",
+        formule: "ρ = m/V   |   m = ρ×V   |   V = m/ρ   |   F_op = ρ_vl × g × V",
+        voorbeeld: "Hout: m=600g, V=1000 cm³ → ρ=0,6 g/cm³ < 1 → drijft. IJzer: ρ=7,9 g/cm³ > 1 → zinkt.",
+      },
+      {
+        titel: "H3 · Druk",
+        intro: "Druk (p) is de kracht per oppervlakte-eenheid. Eenheid: Pascal (Pa = N/m²). Hoe groter het oppervlak waarover een kracht verdeeld wordt, hoe kleiner de druk.",
+        stappen: [
+          "Formule: p = F / A. p in Pa, F in N, A in m².",
+          "Luchtdruk: ≈ 100.000 Pa = 1 bar op zeeniveau.",
+          "Waterdruk neemt toe met diepte: p = ρ × g × h. ρ water = 1000 kg/m³.",
+          "Totale druk onder water: p_totaal = p_lucht + ρ × g × h.",
+          "Toepassingen: grote oppervlakte → lage druk (sneeuwschoenen, skis). Klein oppervlak → hoge druk (naald, mes, spijker).",
+        ],
+        tip: "Grotere oppervlakte = lagere druk bij dezelfde kracht. Dénk aan sneeuwschoenen vs. normale schoenen.",
+        formule: "p = F/A   |   p_water = ρ × g × h   |   1 Pa = 1 N/m²",
+        voorbeeld: "Persoon 700 N op één voet (A=0,02 m²): p=700/0,02=35.000 Pa. Op 10 m diepte: 1000×10×10=100.000 Pa extra.",
+      },
+      {
+        titel: "H4 · Beweging: snelheid en versnelling",
+        intro: "Bewegingsleer (kinematica) beschrijft hoe voorwerpen bewegen. De basisgrootheden zijn positie, snelheid en versnelling.",
+        stappen: [
+          "Snelheid: v = Δx / Δt. In m/s. Gemiddelde snelheid = totale afstand / totale tijd.",
+          "Eenparige rechtlijnige beweging: constante snelheid, geen nettokracht. v = constant, a = 0.",
+          "Eenparig versnelde beweging: constante versnelling. a = Δv / Δt.",
+          "Afstand-tijdgrafiek: helling = snelheid. Snelheid-tijdgrafiek: helling = versnelling, oppervlakte = afstand.",
+          "Omrekenen snelheid: km/h naar m/s: deel door 3,6. m/s naar km/h: vermenigvuldig met 3,6.",
+        ],
+        tip: "In een v-t grafiek: helling = versnelling. Oppervlakte onder de lijn = afgelegde weg.",
+        formule: "v = Δx/Δt   |   a = Δv/Δt   |   km/h ÷ 3,6 = m/s",
+        voorbeeld: "Auto rijdt 90 km/h = 25 m/s. Remt in 5 s naar 0: a = (0-25)/5 = -5 m/s².",
+      },
+      {
+        titel: "H5 · Energie en arbeid",
+        intro: "Energie is het vermogen om arbeid te verrichten. Er zijn verschillende energievormen. De wet van behoud van energie zegt dat energie nooit verdwijnt maar alleen omgezet wordt.",
+        stappen: [
+          "Arbeid: W = F × d × cos(θ). W in Joule (J), F in N, d in m. Als kracht en verplaatsing parallel: W = F × d.",
+          "Kinetische energie: E_kin = ½mv². Afhankelijk van massa en snelheid.",
+          "Potentiële energie: E_pot = mgh. Afhankelijk van massa, hoogte en zwaartekrachtsversnelling.",
+          "Wet van behoud van energie: E_totaal = constant (in gesloten systeem).",
+          "Vermogen: P = W/t = F×v. P in Watt (W). 1 W = 1 J/s.",
+        ],
+        tip: "Energie gaat nooit verloren, alleen omgezet. In de praktijk altijd wat warmteverlies.",
+        formule: "W = F×d   |   E_kin = ½mv²   |   E_pot = mgh   |   P = W/t",
+        voorbeeld: "Bal van 0,5 kg op 10 m hoogte: E_pot = 0,5×10×10 = 50 J. Als hij valt en g=10: E_kin = 50 J net voor de grond.",
+      },
+      {
+        titel: "H6 · Warmte en temperatuur",
+        intro: "Warmte en temperatuur zijn verwante maar verschillende begrippen. Temperatuur meet hoe warm iets is (°C of K). Warmte is energie die overgedragen wordt door temperatuurverschil.",
+        stappen: [
+          "Temperatuurschalen: Celsius (°C) en Kelvin (K). T(K) = T(°C) + 273. Absoluut nulpunt: 0 K = −273°C.",
+          "Warmteoverdracht: geleiding (door contact), convectie (door stroming vloeistof/gas), straling (elektromagnetisch, geen medium nodig).",
+          "Soortelijke warmte: Q = m × c × ΔT. Q in J, m in kg, c in J/(kg·K), ΔT in K of °C.",
+          "Soortelijke warmte water: c = 4200 J/(kg·K). Water warmt langzaam op en af (groot thermisch vermogen).",
+          "Smelt- en verdampingswarmte: bij faseovergang verandert temperatuur NIET, maar wordt warmte opgenomen/afgegeven.",
+        ],
+        tip: "Water heeft een hoge soortelijke warmte (4200 J/kg·K). Daardoor is de zee een goede temperatuurbuffer.",
+        formule: "Q = m × c × ΔT   |   T(K) = T(°C) + 273",
+        voorbeeld: "1 kg water opwarmen van 20°C naar 100°C: Q = 1 × 4200 × 80 = 336.000 J = 336 kJ.",
+      },
+    ],
+    oefeningen: [
+      { vraag: "Bereken de zwaartekracht op een object van 8 kg.", antwoord: "F = 80 N", uitleg: "F_z = m × g = 8 × 10 = 80 N.", hint: "F = m × g, g = 10 N/kg.", moeilijkheid: 1 },
+      { vraag: "Bereken de versnelling als F=500 N en m=100 kg.", antwoord: "a = 5 m/s²", uitleg: "a = F/m = 500/100 = 5 m/s².", hint: "F = ma → a = F/m.", moeilijkheid: 1 },
+      { vraag: "Bereken de dichtheid: m=2 kg, V=500 cm³. Drijft het in water?", antwoord: "ρ = 4 g/cm³ > 1 → zinkt", uitleg: "m=2kg=2000g. ρ=2000/500=4 g/cm³ > 1 g/cm³ → zinkt.", hint: "Zet kg om naar g. ρ=m/V. Vergelijk met 1 g/cm³.", moeilijkheid: 2 },
+      { vraag: "Bereken druk als F=1000 N en A=0,5 m².", antwoord: "p = 2000 Pa", uitleg: "p = F/A = 1000/0,5 = 2000 Pa.", hint: "p = F/A.", moeilijkheid: 1 },
+      { vraag: "Bereken de waterdruk op 20 m diepte (ρ=1000 kg/m³, g=10).", antwoord: "p = 200.000 Pa = 2 bar", uitleg: "p = ρ×g×h = 1000×10×20 = 200.000 Pa.", hint: "p = ρ × g × h.", moeilijkheid: 2 },
+      { vraag: "Reken 72 km/h om naar m/s.", antwoord: "20 m/s", uitleg: "72 / 3,6 = 20 m/s.", hint: "km/h → m/s: deel door 3,6.", moeilijkheid: 1 },
+      { vraag: "Bereken de kinetische energie van een auto (m=1000 kg, v=20 m/s).", antwoord: "E_kin = 200.000 J = 200 kJ", uitleg: "E_kin = ½mv² = ½×1000×400 = 200.000 J.", hint: "E_kin = ½mv².", moeilijkheid: 2 },
+      { vraag: "Bereken hoeveel warmte nodig is om 2 kg water van 20°C naar 80°C te brengen (c=4200).", antwoord: "Q = 504.000 J = 504 kJ", uitleg: "Q = m×c×ΔT = 2×4200×60 = 504.000 J.", hint: "Q = m×c×ΔT. ΔT = 80−20 = 60.", moeilijkheid: 2 },
+      { vraag: "Wat zijn de drie manieren van warmteoverdracht?", antwoord: "Geleiding (contact), convectie (stroming vloeistof/gas), straling (elektromagnetisch, geen medium nodig).", uitleg: "Elke methode werkt anders. Straling werkt ook in vacuüm (bijv. zonnewarmte).", hint: "Denk aan: aanraken, rondstromen, stralen.", moeilijkheid: 2 },
+      { vraag: "Bereken de potentiële energie van een bal (m=2 kg) op h=15 m (g=10).", antwoord: "E_pot = 300 J", uitleg: "E_pot = mgh = 2×10×15 = 300 J.", hint: "E_pot = mgh.", moeilijkheid: 1 },
+      { vraag: "Twee krachten op een voorwerp: 40 N rechts en 15 N links. Wat is de resultante?", antwoord: "25 N naar rechts", uitleg: "40−15=25 N in de richting van de grootste kracht (rechts).", hint: "Tegengestelde krachten aftrekken. Richting = grootste kracht.", moeilijkheid: 2 },
+    ],
+  }},
+
+  // ══════════════════════════════════════════════
+  // SCHEIKUNDE VWO 1
+  // Hoofdstukken: Stoffen & mengsels | Periodiek systeem | Scheidingstechnieken | Atoombouw | Bindingen | Reacties
+  // ══════════════════════════════════════════════
+  scheikunde: { "VWO 1": {
+    uitleg: [
+      {
+        titel: "H1 · Stoffen en mengsels",
+        intro: "Alle materie bestaat uit stoffen. Zuivere stoffen hebben vaste, reproduceerbare eigenschappen (smeltpunt, kookpunt, dichtheid). Mengsels zijn combinaties van twee of meer stoffen die fysisch te scheiden zijn.",
+        stappen: [
+          "Element: bestaat uit één soort atoom. Ijzer (Fe), zuurstof (O₂), goud (Au), koolstof (C).",
+          "Verbinding: twee of meer verschillende elementen chemisch gebonden. Water (H₂O), zout (NaCl), suiker (C₁₂H₂₂O₁₁).",
+          "Homogeen mengsel: overal dezelfde samenstelling, geen zichtbare deeltjes. Zoutwater, lucht, messing (koper+zink).",
+          "Heterogeen mengsel: ongelijke samenstelling, zichtbare deeltjes of grenslaag. Zand+water, salade, bloed.",
+          "Kenmerken van zuivere stof: vast smeltpunt, vast kookpunt, vaste dichtheid.",
+        ],
+        tip: "Verbinding ≠ mengsel! In verbinding zijn atomen chemisch gebonden (nieuwe stof). In mengsel zijn stoffen fysisch gemengd (zelfde stoffen).",
+        formule: "Zuivere stof: element of verbinding | Mengsel: homogeen of heterogeen",
+        voorbeeld: "Zeewat = homogeen mengsel. Graniet = heterogeen mengsel (zichtbare kristallen). NaCl = verbinding.",
+      },
+      {
+        titel: "H2 · Periodiek systeem",
+        intro: "Het periodiek systeem ordent alle bekende elementen op oplopend atoomnummer. Elementen in dezelfde groep (kolom) hebben vergelijkbare chemische eigenschappen vanwege hun elektronenconfiguratie.",
+        stappen: [
+          "Atoomnummer (Z): aantal protonen in de kern. Uniek per element.",
+          "Massagetal (A): totaal aantal protonen + neutronen. N = A − Z.",
+          "Perioden (rijen): geven het aantal gevulde elektronenschillen aan. Periode 1 heeft schil K, periode 2 heeft K+L, etc.",
+          "Groepen (kolommen): groepnummer = aantal valentie-elektronen (buitenste schil). Groep 1: 1 val.e⁻. Groep 17 (halogenen): 7 val.e⁻. Groep 18 (edelgassen): 8 val.e⁻ (vol).",
+          "Metalen (links): geleiden elektriciteit, glanzend. Niet-metalen (rechts): slecht geleider. Metalloïden (scheiding): tussenin.",
+        ],
+        tip: "Groep = valentie-elektronen = chemisch gedrag. Periode = aantal schillen. Edelgassen zijn stabiel want volle buitenste schil.",
+        formule: "A = Z + N   |   Groep = valentie-elektronen   |   Periode = aantal schillen",
+        voorbeeld: "Natrium (Na): Z=11, A=23 → N=12. Groep 1 (1 val.e⁻), periode 3 (3 schillen). Elektronenverdeling: 2-8-1.",
+      },
+      {
+        titel: "H3 · Scheidingstechnieken",
+        intro: "Mengsels kunnen gescheiden worden via fysische methoden, afhankelijk van de eigenschappen die de componenten van elkaar onderscheiden.",
+        stappen: [
+          "Filtreren: scheidt vaste stof van vloeistof. Zand + water → filter. Zand = residu, water = filtraat.",
+          "Destilleren: scheidt vloeistoffen met verschillende kookpunten. Vloeistof met laagste kookpunt verdampt eerst.",
+          "Indampen (verdampen): vaste opgeloste stof uit oplossing halen. Zoutwater indampen → zout.",
+          "Chromatografie: scheidt opgeloste stoffen op basis van oplosbaarheid en adsorptie (bijv. kleurstoffen in inkt).",
+          "Magnetisch scheiden: ijzerachtige stoffen aangetrokken door magneet.",
+          "Centrifugeren: zware deeltjes slaan neer door centrifugale kracht. Bloed scheiden in plasma + cellen.",
+        ],
+        tip: "Kies de techniek die inspeelt op het kenmerkende verschil: kookpunt → destilleren. Vaste stof/vloeistof → filtreren. Kleurstof → chromatografie.",
+        formule: "Scheidingstechniek ← Verschil in: kookpunt | grootte | dichtheid | oplosbaarheid | magnetisme",
+        voorbeeld: "Rode wijn: chromatografie (kleurstoffen). Koffie zetten: filtreren (koffiekorrels = residu, koffie = filtraat).",
+      },
+      {
+        titel: "H4 · Atoombouw",
+        intro: "Atomen zijn de kleinste deeltjes van een element. Een atoom bestaat uit een kern (protonen en neutronen) omringd door elektronen op schillen.",
+        stappen: [
+          "Kerndeeltjes: protonen (positief, Z), neutronen (geen lading, A−Z).",
+          "Elektronen: negatief geladen, op schillen (K,L,M,...). Neutrale atoom: e⁻ = p⁺.",
+          "Elektronenschillen: K (max 2), L (max 8), M (max 18).",
+          "Valentieschil: buitenste schil. Valentie-elektronen bepalen chemisch gedrag.",
+          "Isotopen: zelfde Z (zelfde element), verschillend A (verschillend aantal neutronen). ¹²C en ¹⁴C.",
+        ],
+        tip: "Vul schillen van binnen naar buiten: K eerst (max 2), dan L (max 8), dan M. Valentie = buitenste schil.",
+        formule: "Z = protonen = elektronen (neutraal)   |   N = A − Z   |   Schillen: K≤2, L≤8, M≤18",
+        voorbeeld: "Chloor (Cl): Z=17, A=35, N=18. Schilverdeling: K=2, L=8, M=7. Groep 17 (7 val.e⁻).",
+      },
+      {
+        titel: "H5 · Chemische bindingen (introductie)",
+        intro: "Atomen binden aan elkaar om een stabielere elektronenconfiguratie te bereiken (volle buitenste schil, octet). Er zijn drie hoofdtypen chemische bindingen.",
+        stappen: [
+          "Ionbinding: metaal geeft e⁻ af (kation +), niet-metaal neemt e⁻ op (anion −). Sterk, hoog smelt- en kookpunt, geleidend als opgelost. Bijv: NaCl.",
+          "Covalente binding: niet-metaal + niet-metaal delen e⁻. Apolair (gelijk) of polair (ongelijk gedelld). H₂O, CO₂.",
+          "Metaalbinding: metaalionen in 'zee' van vrije elektronen. Geleidend, buigzaam.",
+          "Molecuulformule: geeft aantal atomen per molecuul. H₂O: 2 waterstof, 1 zuurstof. CO₂: 1 koolstof, 2 zuurstof.",
+          "Valentie en bindingen: H=1, O=2, N=3, C=4. Carbon kan vier bindingen aangaan.",
+        ],
+        tip: "Metaal + niet-metaal → ionbinding. Niet-metaal + niet-metaal → covalent. Metaal + metaal → metaalbinding.",
+        formule: "Ionbinding: e⁻ overdracht | Covalent: e⁻ deling | Metaalbinding: e⁻ zee",
+        voorbeeld: "NaCl: Na (metaal) geeft 1 e⁻ aan Cl (niet-metaal) → Na⁺ + Cl⁻ → ionrooster.",
+      },
+      {
+        titel: "H6 · Chemische reacties en vergelijkingen",
+        intro: "Bij een chemische reactie worden beginstoffen (reactanten) omgezet in eindproducten. De wet van behoud van massa: atomen worden niet gemaakt of vernietigd. Vergelijkingen moeten worden gebalanceerd.",
+        stappen: [
+          "Reactieschema: reactanten → producten. Koolstof + zuurstof → koolstofdioxide.",
+          "Chemische vergelijking: met symbolen en formules. C + O₂ → CO₂.",
+          "Balanceren: zorg dat het aantal atomen per element links = rechts. Gebruik alleen coëfficiënten, geen formules aanpassen.",
+          "Tekenen van reacties: verbranding (stof + O₂ → CO₂ + H₂O), vorming van zout (metaal + niet-metaal).",
+          "Energieverandering: exotherm (warmte vrij, bijv. verbranding). Endotherm (warmte opgenomen, bijv. fotosynthese).",
+        ],
+        tip: "Balanceer systematisch: begin met het element dat het minst voorkomt. O₂ en H₂O als laatste. Nooit de formule zelf aanpassen!",
+        formule: "Reactanten → Producten   |   Wet van behoud van massa",
+        voorbeeld: "CH₄ + 2O₂ → CO₂ + 2H₂O. Check: C:1=1, H:4=4, O:4=4 ✓. Verbranding methaan is exotherm.",
+      },
+    ],
+    oefeningen: [
+      { vraag: "Is suikerwater een element, verbinding of mengsel? Homogeen of heterogeen?", antwoord: "Homogeen mengsel (suiker en water zijn apart verbindingen, samen gemengd, overal gelijke samenstelling).", uitleg: "Geen chemische reactie → mengsel. Je ziet geen aparte deeltjes → homogeen.", hint: "Chemische reactie? Nee → mengsel. Deeltjes zichtbaar? Nee → homogeen.", moeilijkheid: 1 },
+      { vraag: "Hoeveel protonen, neutronen en elektronen heeft ¹⁶₈O?", antwoord: "8 protonen, 8 neutronen, 8 elektronen", uitleg: "Z=8 (protonen=8). N=16−8=8. Neutraal atoom: e⁻=p⁺=8.", hint: "Z=protonen. N=A−Z. Neutraal: e⁻=protonen.", moeilijkheid: 2 },
+      { vraag: "Welke scheidingstechniek gebruik je om zand uit water te halen?", antwoord: "Filtreren: zand (vast) op filter = residu. Water gaat door = filtraat.", uitleg: "Vaste stof + vloeistof scheiden → filtreren.", hint: "Vast + vloeibaar = filtreren.", moeilijkheid: 1 },
+      { vraag: "Geef de elektronenverdeling van Natrium (Z=11).", antwoord: "K=2, L=8, M=1 (geschreven als 2-8-1)", uitleg: "Vul K(max2), L(max8), rest in M: 2+8+1=11.", hint: "Vul van binnen: K=2, L=8, M=rest.", moeilijkheid: 2 },
+      { vraag: "Wat voor binding heeft NaCl?", antwoord: "Ionbinding: Na (metaal) geeft 1 e⁻ af → Na⁺. Cl (niet-metaal) neemt 1 e⁻ op → Cl⁻.", uitleg: "Metaal + niet-metaal → ionbinding via e⁻ overdracht.", hint: "Metaal + niet-metaal = ionbinding.", moeilijkheid: 1 },
+      { vraag: "Balanceer: H₂ + O₂ → H₂O", antwoord: "2H₂ + O₂ → 2H₂O", uitleg: "Ongebalanceerd: H:2≠2, O:2≠1. Coëfficiënt 2 voor H₂O: H=4,O=2. Coëfficiënt 2 voor H₂: H:4=4, O:2=2 ✓.", hint: "Gebruik coëfficiënten. Pas nooit de formule aan.", moeilijkheid: 2 },
+      { vraag: "Wat is het verschil tussen een element en een verbinding?", antwoord: "Element: één soort atoom (Fe, O₂). Verbinding: twee of meer soorten atomen chemisch gebonden (H₂O, NaCl).", uitleg: "Bij een verbinding zijn de atomen chemisch aan elkaar gebonden.", hint: "Één soort atoom vs. chemisch gebonden meerdere soorten.", moeilijkheid: 1 },
+      { vraag: "Bereken het massagetal en het aantal neutronen van ²³₁₁Na.", antwoord: "Massagetal A=23. Neutronen N=23−11=12.", uitleg: "A = bovenste getal = 23. Z = onderste = 11. N = A−Z = 12.", hint: "N = A − Z.", moeilijkheid: 1 },
+      { vraag: "Noem twee eigenschappen van een ionverbinding.", antwoord: "Hoog smelt- en kookpunt. Geleidend als opgelost in water of gesmolten. Hard maar broos.", uitleg: "Ionverbindingen hebben een sterk ionrooster → moeilijk te verbreken → hoge smeltpunten.", hint: "Denk aan de sterkte van de ionbinding.", moeilijkheid: 2 },
+      { vraag: "Welke scheidingstechniek gebruik je om keukenzout te scheiden van water?", antwoord: "Indampen (verdampen): water verdampt, zout blijft achter.", uitleg: "Zout lost op in water, kan niet worden gefilterd. Verdamp het water → zout blijft.", hint: "Zout lost op → niet filtreerbaar. Verdamp het water.", moeilijkheid: 2 },
+      { vraag: "Geef de molecuulformule en verklaar de structuur van water (H₂O).", antwoord: "H₂O: 2 waterstofatomen (H, valentie=1) gebonden aan 1 zuurstofatoom (O, valentie=2). Polaire covalente binding.", uitleg: "Zuurstof heeft 2 valentie-bindingsparen nodig → bindt aan 2 waterstofatomen.", hint: "Valentie H=1, O=2. Covalente binding: delen e⁻.", moeilijkheid: 2 },
+    ],
+  }},
+
+}; // einde INHOUD
+
+</script>
+<script>
+// ═══════════════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════════════
+const VAKKEN = [
+  { id:"wiskunde",       naam:"Wiskunde",       emoji:"📐", kleur:"#3B82F6" },
+  { id:"nederlands",     naam:"Nederlands",     emoji:"📝", kleur:"#10B981" },
+  { id:"engels",         naam:"Engels",         emoji:"🌍", kleur:"#F59E0B" },
+  { id:"biologie",       naam:"Biologie",       emoji:"🧬", kleur:"#8B5CF6" },
+  { id:"aardrijkskunde", naam:"Aardrijkskunde", emoji:"🗺️", kleur:"#06B6D4" },
+  { id:"geschiedenis",   naam:"Geschiedenis",   emoji:"🏛️", kleur:"#EF4444" },
+  { id:"frans",          naam:"Frans",          emoji:"🥐", kleur:"#EC4899" },
+  { id:"natuurkunde",    naam:"Natuurkunde",    emoji:"⚡", kleur:"#F97316" },
+  { id:"scheikunde",     naam:"Scheikunde",     emoji:"⚗️", kleur:"#7C3AED" },
+];
+const KLAS = "VWO 1";
+
+let huidigScherm = "home";
+let huidigVak = null;
+let huidigTab = "uitleg";
+let leerlingNaam = (function(){ try { return localStorage.getItem("vwo1_naam") || ""; } catch(e){ return ""; } })();
+let leerlingData = {};
+
+// Load progress from localStorage
+function safeGet(key) {
+  try { return localStorage.getItem(key); } catch(e) { return null; }
+}
+function safeSet(key, val) {
+  try { localStorage.setItem(key, val); } catch(e) {}
+}
+function loadData() {
+  VAKKEN.forEach(v => {
+    try {
+      const saved = JSON.parse(safeGet("vwo1_data_" + v.id) || "null");
+      leerlingData[v.id] = saved || { gedaan: [], scores: [] };
+    } catch(e) {
+      leerlingData[v.id] = { gedaan: [], scores: [] };
+    }
+  });
+}
+function saveData(vakId) {
+  safeSet("vwo1_data_" + vakId, JSON.stringify(leerlingData[vakId]));
+}
+
+// ═══════════════════════════════════════════════
+// NAVIGATIE
+// ═══════════════════════════════════════════════
+function openVak(vakId) {
+  var vak = VAKKEN.find(function(v){ return v.id === vakId; });
+  if (vak) navTo("vak", vak);
+}
+
+function navTo(scherm, vak) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+
+  huidigScherm = scherm;
+  huidigVak = vak || null;
+
+  const el = document.getElementById("screen-" + scherm);
+  if (el) { el.classList.add("active"); }
+
+  const navEl = document.getElementById("nav-" + (scherm === "vak" ? "home" : scherm));
+  if (navEl) navEl.classList.add("active");
+
+  // Topbar
+  const backBtn = document.getElementById("back-btn");
+  const logo = document.getElementById("topbar-logo");
+  const title = document.getElementById("topbar-title");
+
+  if (scherm === "home") {
+    backBtn.style.display = "none";
+    logo.style.display = "block";
+    title.textContent = "VWO 1 — Huiswerkapp";
+    updateHomeScreen();
+  } else if (scherm === "vak" && vak) {
+    backBtn.style.display = "block";
+    logo.style.display = "none";
+    title.textContent = vak.emoji + " " + vak.naam;
+    renderVak();
+  } else if (scherm === "rapport") {
+    backBtn.style.display = "none";
+    logo.style.display = "none";
+    title.textContent = "📋 Rapportage";
+    renderRapport();
+  }
+
+  // Scroll naar boven
+  document.getElementById("main").scrollTop = 0;
+  window.scrollTo(0, 0);
+}
+
+function goBack() {
+  navTo("home");
+}
+
+// ═══════════════════════════════════════════════
+// NAAM
+// ═══════════════════════════════════════════════
+function openNaamOverlay() {
+  document.getElementById("naam-input").value = leerlingNaam;
+  document.getElementById("naam-overlay").classList.add("open");
+  setTimeout(() => document.getElementById("naam-input").focus(), 100);
+}
+function closeNaamOverlay(e) {
+  document.getElementById("naam-overlay").classList.remove("open");
+}
+function saveNaam() {
+  const val = document.getElementById("naam-input").value.trim();
+  leerlingNaam = val || "";
+  safeSet("vwo1_naam", leerlingNaam);
+  updateNaamDisplay();
+  document.getElementById("naam-overlay").classList.remove("open");
+  updateHomeScreen();
+}
+function updateNaamDisplay() {
+  const display = leerlingNaam || "Leerling";
+  document.getElementById("naam-btn").textContent = "👤 " + display;
+  const welkom = document.getElementById("welkom-naam");
+  if (welkom) welkom.textContent = display;
+}
+
+// ═══════════════════════════════════════════════
+// HOME SCREEN
+// ═══════════════════════════════════════════════
+function updateHomeScreen() {
+  updateNaamDisplay();
+  const totaal = VAKKEN.reduce((s,v) => s + leerlingData[v.id].gedaan.length, 0);
+  const sub = document.getElementById("welkom-sub");
+  if (sub) sub.textContent = totaal > 0 ? totaal + " oefeningen gemaakt" : "Kies een vak om te beginnen";
+  // Update progress bars and score pills on pre-rendered cards
+  VAKKEN.forEach(function(vak) {
+    const d = leerlingData[vak.id];
+    const oefs = (INHOUD[vak.id] && INHOUD[vak.id][KLAS] && INHOUD[vak.id][KLAS].oefeningen) ? INHOUD[vak.id][KLAS].oefeningen.length : 0;
+    const pct = oefs > 0 ? Math.round(d.gedaan.length / oefs * 100) : 0;
+    const correct = d.scores.filter(Boolean).length;
+    const score = d.gedaan.length > 0 ? Math.round(correct / d.gedaan.length * 100) : null;
+    const progEl = document.getElementById("prog-" + vak.id);
+    const pctEl = document.getElementById("pct-" + vak.id);
+    if (progEl) progEl.style.width = pct + "%";
+    if (pctEl) pctEl.textContent = pct + "% voltooid";
+    if (score !== null) {
+      const metaEl = document.getElementById("meta-" + vak.id);
+      if (metaEl) {
+        const bg = score>=70?"#DCFCE7":score>=50?"#FEF9C3":"#FEE2E2";
+        const col = score>=70?"#166534":score>=50?"#854D0E":"#991B1B";
+        metaEl.innerHTML = '<span style="background:'+bg+';color:'+col+';padding:2px 8px;border-radius:20px;font-weight:700;">'+score+'% goed</span>';
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════
+// VAK SCREEN
+// ═══════════════════════════════════════════════
+function switchTab(t) {
+  huidigTab = t;
+  document.getElementById("uitleg-content").style.display = t === "uitleg" ? "block" : "none";
+  document.getElementById("oefen-content").style.display  = t === "oefeningen" ? "block" : "none";
+  document.getElementById("tab-uitleg-btn").className = "tab-switch-btn" + (t === "uitleg" ? " active" : "");
+  document.getElementById("tab-oefen-btn").className  = "tab-switch-btn" + (t === "oefeningen" ? " active" : "");
+  if (t === "uitleg") { document.getElementById("tab-uitleg-btn").style.color = huidigVak?.kleur || "#111"; }
+  else { document.getElementById("tab-oefen-btn").style.color = huidigVak?.kleur || "#111"; }
+}
+
+function renderVak() {
+  if (!huidigVak) return;
+  const kleur = huidigVak.kleur;
+  const data = INHOUD[huidigVak.id][KLAS] || { uitleg:[], oefeningen:[] };
+
+  // Tab kleuren
+  document.getElementById("tab-uitleg-btn").style.color = huidigTab === "uitleg" ? kleur : "#9CA3AF";
+  document.getElementById("tab-oefen-btn").style.color  = huidigTab === "oefeningen" ? kleur : "#9CA3AF";
+
+  // UITLEG
+  const uitlegEl = document.getElementById("uitleg-content");
+  uitlegEl.innerHTML = data.uitleg.map((item, i) => `
+    <div class="uitleg-kaart fade-up" style="border-top:4px solid ${kleur};animation-delay:${i*0.05}s">
+      <h3 style="margin:0 0 10px;font-size:18px;font-weight:800;color:#111827;line-height:1.3;">${item.titel}</h3>
+      <p style="margin:0 0 16px;color:#4B5563;font-size:14px;line-height:1.75;">${item.intro}</p>
+      ${item.stappen ? `
+        <div style="font-weight:700;font-size:13px;color:#374151;margin-bottom:8px;">📋 Stappenplan</div>
+        ${item.stappen.map((s,j) => `
+          <div class="stap-row">
+            <div class="stap-num" style="background:${kleur};">${j+1}</div>
+            <div style="font-size:13px;color:#374151;line-height:1.6;">${s}</div>
+          </div>`).join("")}
+      ` : ""}
+      ${item.tip ? `
+        <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:11px 13px;margin:12px 0 10px;font-size:13px;color:#92400E;line-height:1.6;">
+          💡 <strong>Tip:</strong> ${item.tip}
+        </div>` : ""}
+      ${item.formule ? `
+        <div class="mono-block" style="background:${kleur}10;border:1px solid ${kleur}30;color:${kleur};">
+<strong>Formule:</strong>
+${escHtml(item.formule)}</div>` : ""}
+      ${item.voorbeeld ? `
+        <div class="mono-block" style="background:#F8FAFC;border:1px solid #E2E8F0;color:#475569;">
+<strong>Voorbeeld:</strong>
+${escHtml(item.voorbeeld)}</div>` : ""}
+    </div>`).join("");
+
+  // OEFENINGEN
+  renderOefeningen(data, kleur);
+
+  // Toon juiste tab
+  switchTab(huidigTab);
+}
+
+function renderOefeningen(data, kleur) {
+  const vakId = huidigVak.id;
+  const d = leerlingData[vakId];
+  const oefen = document.getElementById("oefen-content");
+
+  const scoreBar = `
+    <div class="card" style="padding:12px 14px;margin-bottom:14px;display:flex;gap:18px;align-items:center;">
+      <div style="font-size:13px;color:#6B7280;"><strong style="color:#111827;">${d.gedaan.length}</strong>/${data.oefeningen.length} gemaakt</div>
+      <div style="font-size:13px;color:#6B7280;"><strong style="color:#10B981;">${d.scores.filter(Boolean).length}</strong> goed</div>
+    </div>`;
+
+  const kaarten = data.oefeningen.map((oe, i) => buildOefeningKaart(oe, i, vakId, kleur)).join("");
+  oefen.innerHTML = scoreBar + kaarten;
+}
+
+function buildOefeningKaart(oe, idx, vakId, kleur) {
+  const d = leerlingData[vakId];
+  const alGedaan = d.gedaan.includes(idx);
+  const scoreIdx = d.gedaan.indexOf(idx);
+  const wasGoed = alGedaan ? d.scores[scoreIdx] : null;
+
+  const badgeClass = oe.moeilijkheid === 1 ? "badge-easy" : oe.moeilijkheid === 2 ? "badge-med" : "badge-hard";
+  const badgeLabel = oe.moeilijkheid === 1 ? "Makkelijk" : oe.moeilijkheid === 2 ? "Gemiddeld" : "Moeilijk";
+  const randKleur = wasGoed === true ? "#10B981" : wasGoed === false ? "#EF4444" : kleur;
+  const borderBg = wasGoed === true ? "#A7F3D0" : wasGoed === false ? "#FECACA" : "#E5E7EB";
+
+  const antwoordBlok = alGedaan ? `
+    <div style="background:${wasGoed?"#ECFDF5":"#FEF2F2"};border:1px solid ${wasGoed?"#A7F3D0":"#FECACA"};border-radius:12px;padding:14px 14px;">
+      <div style="font-weight:800;font-size:14px;color:${wasGoed?"#065F46":"#991B1B"};margin-bottom:6px;">
+        ${wasGoed ? "✅ Goed gedaan!" : "❌ Juiste antwoord:"}
+      </div>
+      <div style="font-weight:700;color:#111827;font-size:14px;margin-bottom:8px;">${escHtml(oe.antwoord || oe.antwooard || "")}</div>
+      <div style="color:#4B5563;font-size:13px;line-height:1.65;"><strong>Uitleg:</strong> ${escHtml(oe.uitleg)}</div>
+    </div>` : `
+    <div id="fase-${vakId}-${idx}">
+      <button class="oe-btn" style="background:#FFFBEB;color:#92400E;border:1px solid #FDE68A;"
+        onclick="toonHint('${vakId}',${idx},'${escAttr(kleur)}')">💡 Hint tonen</button>
+      <div class="oe-grid">
+        <button class="oe-btn" style="background:${kleur}15;color:${kleur};border:1.5px solid ${kleur}40;margin-bottom:0;"
+          onclick="registreer('${vakId}',${idx},true,'${escAttr(kleur)}')">✅ Ik weet het</button>
+        <button class="oe-btn" style="background:#FEF2F2;color:#DC2626;border:1.5px solid #FECACA;margin-bottom:0;"
+          onclick="registreer('${vakId}',${idx},false,'${escAttr(kleur)}')">❌ Weet niet</button>
+      </div>
+    </div>`;
+
+  return `
+    <div id="oe-${vakId}-${idx}" class="oe-kaart" style="border-color:${borderBg};border-left-color:${randKleur};">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:28px;height:28px;border-radius:8px;background:${kleur}20;color:${kleur};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;">${idx+1}</div>
+          <span class="badge ${badgeClass}">${badgeLabel}</span>
+        </div>
+        ${alGedaan ? `<span style="font-size:22px;">${wasGoed?"✅":"❌"}</span>` : ""}
+      </div>
+      <p style="margin:0 0 16px;font-size:16px;font-weight:600;color:#111827;line-height:1.55;">${escHtml(oe.vraag)}</p>
+      ${antwoordBlok}
+    </div>`;
+}
+
+function toonHint(vakId, idx, kleur) {
+  const oe = INHOUD[vakId][KLAS].oefeningen[idx];
+  const fase = document.getElementById("fase-" + vakId + "-" + idx);
+  if (!fase) return;
+  fase.innerHTML = `
+    <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:13px 14px;margin-bottom:12px;color:#92400E;font-size:14px;line-height:1.6;">
+      💡 <strong>Hint:</strong> ${escHtml(oe.hint)}
+    </div>
+    <div class="oe-grid">
+      <button class="oe-btn" style="background:${kleur}15;color:${kleur};border:1.5px solid ${kleur}40;margin-bottom:0;"
+        onclick="registreer('${vakId}',${idx},true,'${escAttr(kleur)}')">✅ Nu snap ik het</button>
+      <button class="oe-btn" style="background:#FEF2F2;color:#DC2626;border:1.5px solid #FECACA;margin-bottom:0;"
+        onclick="registreer('${vakId}',${idx},false,'${escAttr(kleur)}')">❌ Nog niet</button>
+    </div>`;
+}
+
+function registreer(vakId, idx, goed, kleur) {
+  const d = leerlingData[vakId];
+  if (d.gedaan.includes(idx)) return;
+  d.gedaan.push(idx);
+  d.scores.push(goed);
+  saveData(vakId);
+
+  // Rebuild just this card
+  const oe = INHOUD[vakId][KLAS].oefeningen[idx];
+  const kaartEl = document.getElementById("oe-" + vakId + "-" + idx);
+  if (kaartEl) {
+    const randKleur = goed ? "#10B981" : "#EF4444";
+    const borderBg = goed ? "#A7F3D0" : "#FECACA";
+    kaartEl.style.borderLeftColor = randKleur;
+    kaartEl.style.borderColor = borderBg;
+
+    const fase = document.getElementById("fase-" + vakId + "-" + idx);
+    if (fase) {
+      fase.outerHTML = `
+        <div style="background:${goed?"#ECFDF5":"#FEF2F2"};border:1px solid ${goed?"#A7F3D0":"#FECACA"};border-radius:12px;padding:14px 14px;">
+          <div style="font-weight:800;font-size:14px;color:${goed?"#065F46":"#991B1B"};margin-bottom:6px;">${goed?"✅ Goed gedaan!":"❌ Juiste antwoord:"}</div>
+          <div style="font-weight:700;color:#111827;font-size:14px;margin-bottom:8px;">${escHtml(oe.antwoord || oe.antwooard || "")}</div>
+          <div style="color:#4B5563;font-size:13px;line-height:1.65;"><strong>Uitleg:</strong> ${escHtml(oe.uitleg)}</div>
+        </div>`;
+    }
+    // Update checkmark
+    const headerDiv = kaartEl.querySelector("div:first-child");
+    if (headerDiv) {
+      let ckSpan = headerDiv.querySelector(".ck-span");
+      if (!ckSpan) {
+        ckSpan = document.createElement("span");
+        ckSpan.className = "ck-span";
+        ckSpan.style.fontSize = "22px";
+        headerDiv.appendChild(ckSpan);
+      }
+      ckSpan.textContent = goed ? "✅" : "❌";
+    }
+  }
+  // Update scorebalk
+  updateScoreBalk(vakId);
+  // Update home progress
+  updateHomeVakCard(vakId);
+}
+
+function updateScoreBalk(vakId) {
+  const d = leerlingData[vakId];
+  const data = INHOUD[vakId][KLAS] || { oefeningen:[] };
+  const balk = document.querySelector("#oefen-content .card");
+  if (balk) {
+    balk.innerHTML = `
+      <div style="font-size:13px;color:#6B7280;"><strong style="color:#111827;">${d.gedaan.length}</strong>/${data.oefeningen.length} gemaakt</div>
+      <div style="font-size:13px;color:#6B7280;"><strong style="color:#10B981;">${d.scores.filter(Boolean).length}</strong> goed</div>`;
+    balk.style.display = "flex";
+    balk.style.gap = "18px";
+    balk.style.alignItems = "center";
+  }
+}
+
+function updateHomeVakCard(vakId) {
+  // Re-render het vak-kaartje op home screen
+  const d = leerlingData[vakId];
+  const vak = VAKKEN.find(v => v.id === vakId);
+  const oefs = (INHOUD[vakId][KLAS]?.oefeningen || []).length;
+  const pct = oefs > 0 ? Math.round(d.gedaan.length / oefs * 100) : 0;
+  const correct = d.scores.filter(Boolean).length;
+  const score = d.gedaan.length > 0 ? Math.round(correct / d.gedaan.length * 100) : null;
+
+  // Find the button in the grid with matching vak
+  const allCards = document.querySelectorAll(".vak-card");
+  // Can't easily find by vakId so just regenerate home on next visit
+}
+
+// ═══════════════════════════════════════════════
+// RAPPORT
+// ═══════════════════════════════════════════════
+function renderRapport() {
+  const naam = leerlingNaam || "Leerling";
+  const vandaag = new Date().toLocaleDateString("nl-NL", { day:"numeric", month:"long", year:"numeric" });
+  const totaal = VAKKEN.reduce((s,v) => s + leerlingData[v.id].gedaan.length, 0);
+  const totaalCorrect = VAKKEN.reduce((s,v) => s + leerlingData[v.id].scores.filter(Boolean).length, 0);
+  const gemScore = totaal > 0 ? Math.round(totaalCorrect / totaal * 100) : 0;
+  const vakStats = VAKKEN.map(v => {
+    const d = leerlingData[v.id];
+    const oefs = (INHOUD[v.id][KLAS]?.oefeningen || []).length;
+    const correct = d.scores.filter(Boolean).length;
+    const pct = d.gedaan.length > 0 ? Math.round(correct / d.gedaan.length * 100) : null;
+    return { ...v, oefs, gemaakt: d.gedaan.length, correct, pct };
+  });
+  const sterk = vakStats.filter(v => v.pct !== null && v.pct >= 70);
+  const aandacht = vakStats.filter(v => v.pct !== null && v.pct < 60);
+
+  const vakRijen = vakStats.map(v => {
+    const breedte = v.pct !== null ? v.pct : 0;
+    const kleurBalk = v.pct === null ? "#E5E7EB" : v.pct >= 70 ? "#10B981" : v.pct >= 50 ? "#F59E0B" : "#EF4444";
+    return `
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+          <div style="display:flex;align-items:center;gap:7px;">
+            <span style="font-size:16px;">${v.emoji}</span>
+            <span style="font-weight:700;font-size:14px;">${v.naam}</span>
+          </div>
+          <span style="font-size:12px;color:#6B7280;">${v.gemaakt>0?v.correct+"/"+v.gemaakt+" ("+v.pct+"%)":"Nog niet"}</span>
+        </div>
+        <div class="prog-track" style="height:8px;">
+          <div class="prog-fill" style="width:${breedte}%;background:${kleurBalk};"></div>
+        </div>
+      </div>`;
+  }).join("");
+
+  document.getElementById("rapport-content").innerHTML = `
+    <div style="background:linear-gradient(135deg,#1E3A5F,#2563EB);border-radius:20px;padding:22px 18px;color:white;margin-bottom:14px;">
+      <div style="font-size:11px;opacity:.7;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">Voortgangsrapportage</div>
+      <div style="font-size:24px;font-weight:800;margin-bottom:2px;">${escHtml(naam)}</div>
+      <div style="font-size:13px;opacity:.8;">${KLAS} · ${vandaag}</div>
+      <div style="display:flex;gap:10px;margin-top:14px;">
+        <div class="rapport-stat"><div style="font-size:22px;font-weight:800;">${totaal}</div><div style="font-size:11px;opacity:.8;">Gemaakt</div></div>
+        <div class="rapport-stat"><div style="font-size:22px;font-weight:800;">${vakStats.filter(v=>v.gemaakt>0).length}</div><div style="font-size:11px;opacity:.8;">Vakken</div></div>
+        <div class="rapport-stat"><div style="font-size:22px;font-weight:800;">${gemScore}%</div><div style="font-size:11px;opacity:.8;">Score</div></div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:18px 16px;margin-bottom:12px;">
+      <div style="font-weight:800;font-size:16px;margin-bottom:16px;color:#111827;">📊 Resultaten per vak</div>
+      ${vakRijen}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:14px;padding:14px;">
+        <div style="font-weight:800;color:#065F46;font-size:13px;margin-bottom:8px;">✅ Sterk</div>
+        ${sterk.length===0
+          ? '<div style="color:#6B7280;font-size:12px;">Maak oefeningen.</div>'
+          : sterk.map(v=>`<div style="font-size:13px;color:#065F46;margin-bottom:4px;">${v.emoji} ${v.naam} ${v.pct}%</div>`).join("")}
+      </div>
+      <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:14px;padding:14px;">
+        <div style="font-weight:800;color:#991B1B;font-size:13px;margin-bottom:8px;">⚠️ Aandacht</div>
+        ${aandacht.length===0
+          ? '<div style="color:#6B7280;font-size:12px;">Geen aandachtspunten.</div>'
+          : aandacht.map(v=>`<div style="font-size:13px;color:#991B1B;margin-bottom:4px;">${v.emoji} ${v.naam} ${v.pct}%</div>`).join("")}
+      </div>
+    </div>
+
+    <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:14px;padding:16px;">
+      <div style="font-weight:800;color:#92400E;font-size:14px;margin-bottom:8px;">💌 Advies voor ouders</div>
+      <p style="color:#78350F;font-size:13px;line-height:1.7;margin:0;">
+        ${totaal===0
+          ? escHtml(naam)+" heeft nog geen oefeningen gemaakt. Moedig uw kind aan dagelijks 15–20 minuten te oefenen."
+          : aandacht.length>0
+            ? escHtml(naam)+" verdient extra aandacht bij: "+aandacht.map(v=>v.naam).join(", ")+". Lees de uitleg samen door vóór de oefeningen."
+            : escHtml(naam)+" doet het uitstekend! Stimuleer regelmatige herhaling om de stof vast te houden."}
+      </p>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════
+function escHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;");
+}
+function escAttr(str) {
+  return String(str).replace(/'/g,"\\'");
+}
+
+// ═══════════════════════════════════════════════
+// SERVICE WORKER (offline support)
+// ═══════════════════════════════════════════════
+// Service worker alleen registreren als served via https (PWA installatie)
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  const swCode = `const CACHE="vwo1-v1";self.addEventListener("install",e=>{self.skipWaiting();});self.addEventListener("fetch",e=>{e.respondWith(caches.open(CACHE).then(c=>c.match(e.request).then(r=>{if(r)return r;return fetch(e.request).then(res=>{c.put(e.request,res.clone());return res;});})));});`;
+  const blob = new Blob([swCode], { type: "application/javascript" });
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl).catch(() => {});
+}
+
+// ═══════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════
+function boot() {
+  loadData();
+  updateNaamDisplay();
+  updateHomeScreen();
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', boot);
+} else {
+  boot();
+}
+</script>
+</body>
+</html>
